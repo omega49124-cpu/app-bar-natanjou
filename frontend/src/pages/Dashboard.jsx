@@ -182,7 +182,7 @@ export default function Dashboard() {
           </TabsList>
 
           <TabsContent value="caisse" className="animate-fade-in">
-            <CashRegister onSaleComplete={fetchStats} />
+            <CashRegister onSaleComplete={fetchStats} refreshTrigger={refreshTrigger} />
           </TabsContent>
 
           <TabsContent value="stock" className="animate-fade-in">
