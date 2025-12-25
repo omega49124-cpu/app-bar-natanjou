@@ -12,12 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Printer, RefreshCw, Save, FileSpreadsheet } from "lucide-react";
+import { Printer, RefreshCw, Save, FileSpreadsheet, Calculator } from "lucide-react";
 import { toast } from "sonner";
 
 export const StockTable = () => {
   const [stock, setStock] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recalculating, setRecalculating] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
   const printRef = useRef(null);
@@ -31,6 +32,20 @@ export const StockTable = () => {
       toast.error("Erreur lors du chargement du stock");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const recalculateStock = async () => {
+    setRecalculating(true);
+    try {
+      await axios.post(`${API}/stock/recalculate`);
+      toast.success("Stock recalculé à partir des ventes");
+      fetchStock();
+    } catch (error) {
+      console.error("Error recalculating stock:", error);
+      toast.error("Erreur lors du recalcul");
+    } finally {
+      setRecalculating(false);
     }
   };
 
