@@ -20,7 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Download, FileSpreadsheet, Search, Filter } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Calendar, Download, FileSpreadsheet, Search, Filter, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const SalesHistory = () => {
@@ -46,6 +57,18 @@ export const SalesHistory = () => {
       toast.error("Erreur lors du chargement des données");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteAllSales = async () => {
+    try {
+      await axios.delete(`${API}/sales`);
+      toast.success("Historique des ventes supprimé");
+      setSales([]);
+      setFilteredSales([]);
+    } catch (error) {
+      console.error("Error deleting sales:", error);
+      toast.error("Erreur lors de la suppression");
     }
   };
 
