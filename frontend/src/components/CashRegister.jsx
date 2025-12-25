@@ -161,40 +161,67 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger }) => {
           Produits
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {products.map((product, index) => (
-            <Card
-              key={product.id}
-              className="product-card bg-card border-2 border-border hover:border-secondary cursor-pointer overflow-hidden"
-              onClick={() => addToCart(product)}
-              style={{ animationDelay: `${index * 50}ms` }}
-              data-testid={`product-${product.name.toLowerCase()}`}
-            >
-              <div className="aspect-square relative overflow-hidden bg-muted">
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ShoppingBag className="w-12 h-12 text-muted-foreground" />
+          {products.map((product, index) => {
+            const availableStock = getAvailableStock(product.id);
+            const inCart = getCartQuantity(product.id);
+            const isOutOfStock = availableStock <= 0;
+            const remainingStock = availableStock - inCart;
+            
+            return (
+              <Card
+                key={product.id}
+                className={`product-card bg-card border-2 overflow-hidden ${
+                  isOutOfStock 
+                    ? "border-destructive/50 opacity-60 cursor-not-allowed" 
+                    : "border-border hover:border-secondary cursor-pointer"
+                }`}
+                onClick={() => !isOutOfStock && addToCart(product)}
+                style={{ animationDelay: `${index * 50}ms` }}
+                data-testid={`product-${product.name.toLowerCase()}`}
+              >
+                <div className="aspect-square relative overflow-hidden bg-muted">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className={`w-full h-full object-cover ${isOutOfStock ? "grayscale" : ""}`}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ShoppingBag className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )}
+                  <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground font-bold">
+                    {product.price.toFixed(2)} €
+                  </Badge>
+                  {/* Stock indicator */}
+                  <div className={`absolute bottom-2 left-2 px-2 py-1 rounded-md text-xs font-bold ${
+                    isOutOfStock 
+                      ? "bg-destructive text-destructive-foreground" 
+                      : remainingStock <= 3 
+                        ? "bg-orange-500 text-white" 
+                        : "bg-accent text-accent-foreground"
+                  }`}>
+                    {isOutOfStock ? (
+                      <span className="flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" /> Épuisé
+                      </span>
+                    ) : (
+                      `Stock: ${remainingStock}`
+                    )}
                   </div>
-                )}
-                <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground font-bold">
-                  {product.price.toFixed(2)} €
-                </Badge>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-sans font-bold text-foreground">
-                  {product.name}
-                </h3>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-                  {product.category}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-sans font-bold text-foreground">
+                    {product.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+                    {product.category}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
 
