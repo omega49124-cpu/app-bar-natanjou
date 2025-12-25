@@ -83,11 +83,17 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger }) => {
   };
 
   const updateQuantity = (productId, delta) => {
+    const availableStock = getAvailableStock(productId);
+    
     setCart(
       cart
         .map((item) => {
           if (item.product_id === productId) {
             const newQty = item.quantity + delta;
+            if (newQty > availableStock) {
+              toast.warning(`Stock insuffisant (${availableStock} disponible)`);
+              return item;
+            }
             return newQty > 0 ? { ...item, quantity: newQty } : null;
           }
           return item;
@@ -127,6 +133,7 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger }) => {
       });
 
       clearCart();
+      fetchData(); // Refresh stock after sale
       onSaleComplete?.();
     } catch (error) {
       console.error("Error processing sale:", error);
