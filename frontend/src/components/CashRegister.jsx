@@ -4,32 +4,62 @@ import { API } from "@/App";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Minus, ShoppingBag, Trash2, Check, RefreshCw } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Trash2, Check, RefreshCw, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 export const CashRegister = ({ onSaleComplete, refreshTrigger }) => {
   const [products, setProducts] = useState([]);
+  const [stock, setStock] = useState([]);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get(`${API}/products`);
-      setProducts(response.data);
+      const [productsRes, stockRes] = await Promise.all([
+        axios.get(`${API}/products`),
+        axios.get(`${API}/stock`),
+      ]);
+      setProducts(productsRes.data);
+      setStock(stockRes.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Erreur lors du chargement des produits");
+      console.error("Error fetching data:", error);
+      toast.error("Erreur lors du chargement des données");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts, refreshTrigger]);
+    fetchData();
+  }, [fetchData, refreshTrigger]);
+
+  // Get available stock for a product
+  const getAvailableStock = (productId) => {
+    const stockItem = stock.find((s) => s.product_id === productId);
+    return stockItem ? stockItem.stock_final : 0;
+  };
+
+  // Get quantity already in cart for a product
+  const getCartQuantity = (productId) => {
+    const cartItem = cart.find((item) => item.product_id === productId);
+    return cartItem ? cartItem.quantity : 0;
+  };
 
   const addToCart = (product) => {
+    const availableStock = getAvailableStock(product.id);
+    const inCart = getCartQuantity(product.id);
+    
+    if (availableStock <= 0) {
+      toast.error(`${product.name} - Stock épuisé !`);
+      return;
+    }
+    
+    if (inCart >= availableStock) {
+      toast.warning(`${product.name} - Stock insuffisant (${availableStock} disponible)`);
+      return;
+    }
+
     const existing = cart.find((item) => item.product_id === product.id);
     if (existing) {
       setCart(
