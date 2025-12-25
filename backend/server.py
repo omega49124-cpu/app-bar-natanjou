@@ -192,6 +192,49 @@ async def update_stock(product_id: str, update: StockUpdate):
     updated = await db.stock.find_one({"product_id": product_id, "date": today}, {"_id": 0})
     return updated
 
+@api_router.post("/stock/recalculate")
+async def recalculate_stock():
+    """Recalculate ventes from actual sales and update stock_final"""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    
+    # Get all products
+    products = await db.products.find({}, {"_id": 0}).to_list(100)
+    
+    # Get today's sales
+    sales = await db.sales.find(
+        {"timestamp": {"$regex": f"^{today}"}},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    # Calculate total sales per product
+    sales_by_product = {}
+    for sale in sales:
+        product_id = sale["product_id"]
+        if product_id not in sales_by_product:
+            sales_by_product[product_id] = 0
+        sales_by_product[product_id] += sale["quantity"]
+    
+    # Update stock for each product
+    updated_count = 0
+    for product in products:
+        product_id = product["id"]
+        stock = await db.stock.find_one({"product_id": product_id, "date": today}, {"_id": 0})
+        
+        if stock:
+            # Get actual ventes from sales
+            actual_ventes = sales_by_product.get(product_id, 0)
+            
+            # Recalculate stock_final
+            stock_final = stock["stock_initial"] + stock["achats"] - actual_ventes - stock["pertes"]
+            
+            await db.stock.update_one(
+                {"product_id": product_id, "date": today},
+                {"$set": {"ventes": actual_ventes, "stock_final": stock_final}}
+            )
+            updated_count += 1
+    
+    return {"message": f"Stock recalculé pour {updated_count} produits", "date": today}
+
 # ===== SALES ROUTES =====
 
 @api_router.get("/sales", response_model=List[Sale])
