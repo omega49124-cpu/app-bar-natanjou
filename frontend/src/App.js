@@ -1,52 +1,59 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
+import { Toaster } from "@/components/ui/sonner";
+import Dashboard from "@/pages/Dashboard";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+export const API = `${BACKEND_URL}/api`;
 
 function App() {
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        // Check if products exist, if not seed data
+        const response = await axios.get(`${API}/products`);
+        if (response.data.length === 0) {
+          await axios.post(`${API}/seed`);
+        }
+        setInitialized(true);
+      } catch (e) {
+        console.error("Error initializing app:", e);
+        // Try to seed anyway
+        try {
+          await axios.post(`${API}/seed`);
+          setInitialized(true);
+        } catch (err) {
+          console.error("Failed to seed:", err);
+        }
+      }
+    };
+    initApp();
+  }, []);
+
+  if (!initialized) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="font-sans text-muted-foreground">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
+    <div className="min-h-screen bg-background grain-texture">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="*" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

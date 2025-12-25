@@ -1,34 +1,114 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Main App Styles */
+
+/* Product cards hover effect */
+.product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.product-card:hover {
+    transform: translateY(-2px);
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
+.product-card:active {
+    transform: translateY(0);
+}
+
+/* Button press effect */
+.btn-press {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn-press:active {
+    transform: translateY(2px);
+}
+
+/* Tab indicator animation */
+.tab-indicator {
+    transition: transform 0.2s ease, width 0.2s ease;
+}
+
+/* Stock table zebra striping */
+.stock-table tr:nth-child(even) {
+    background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Input focus states */
+input:focus {
+    outline: none;
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+/* Quantity buttons */
+.qty-btn {
+    width: 32px;
+    height: 32px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    transition: background-color 0.15s ease;
 }
 
-.App-link {
-    color: #61dafb;
+/* Badge animations */
+.badge-pop {
+    animation: badgePop 0.3s ease;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
+@keyframes badgePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Loading skeleton */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        hsl(var(--muted)) 25%,
+        hsl(var(--muted) / 0.5) 50%,
+        hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Print receipt specific */
+@media print {
+    .receipt-container {
+        width: 80mm;
+        margin: 0 auto;
+        padding: 10mm;
+        font-size: 12px;
     }
-    to {
-        transform: rotate(360deg);
+    
+    .receipt-container * {
+        color: black !important;
+        background: white !important;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1025px) {
+    .product-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
