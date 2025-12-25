@@ -310,9 +310,24 @@ export const StockTable = () => {
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="tabular-nums text-secondary font-medium">
-                      -{item.ventes}
-                    </span>
+                    {editingId === item.product_id ? (
+                      <Input
+                        type="number"
+                        value={editValues.ventes}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            ventes: parseInt(e.target.value) || 0,
+                          })
+                        }
+                        className="w-20 text-center mx-auto"
+                        data-testid="edit-ventes"
+                      />
+                    ) : (
+                      <span className="tabular-nums text-secondary font-medium">
+                        -{item.ventes}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     {editingId === item.product_id ? (
