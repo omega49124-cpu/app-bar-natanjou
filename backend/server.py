@@ -170,13 +170,19 @@ async def update_stock(product_id: str, update: StockUpdate):
         update_data["stock_initial"] = update.stock_initial
     if update.achats is not None:
         update_data["achats"] = update.achats
+    if update.ventes is not None:
+        update_data["ventes"] = update.ventes
     if update.pertes is not None:
         update_data["pertes"] = update.pertes
     
-    # Recalculate stock_final
-    new_stock = {**stock, **update_data}
-    stock_final = new_stock["stock_initial"] + new_stock["achats"] - new_stock["ventes"] - new_stock["pertes"]
-    update_data["stock_final"] = stock_final
+    # If stock_final is provided directly, use it; otherwise recalculate
+    if update.stock_final is not None:
+        update_data["stock_final"] = update.stock_final
+    else:
+        # Recalculate stock_final
+        new_stock = {**stock, **update_data}
+        stock_final = new_stock["stock_initial"] + new_stock["achats"] - new_stock["ventes"] - new_stock["pertes"]
+        update_data["stock_final"] = stock_final
     
     await db.stock.update_one(
         {"product_id": product_id, "date": today},
