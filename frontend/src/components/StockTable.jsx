@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Printer, RefreshCw, Save } from "lucide-react";
+import { Printer, RefreshCw, Save, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 
 export const StockTable = () => {
@@ -164,6 +164,32 @@ export const StockTable = () => {
     }, 250);
   };
 
+  const exportCSV = () => {
+    const headers = ["Produit", "Stock Initial", "Achats", "Ventes", "Pertes", "Stock Final", "Date"];
+    const rows = stock.map((item) => [
+      item.product_name,
+      item.stock_initial,
+      item.achats,
+      item.ventes,
+      item.pertes,
+      item.stock_final,
+      item.date,
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.join(";"))
+      .join("\n");
+
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `stock_natanjou_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Export CSV téléchargé");
+  };
+
   if (loading) {
     return (
       <Card className="bg-card border-2 border-border">
@@ -189,6 +215,15 @@ export const StockTable = () => {
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Actualiser
+          </Button>
+          <Button
+            variant="outline"
+            onClick={exportCSV}
+            className="border-2"
+            data-testid="export-stock-csv-btn"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Export CSV
           </Button>
           <Button
             onClick={handlePrint}
