@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -31,28 +30,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2, Receipt, Printer, X, RotateCcw, Search } from "lucide-react";
+import { Plus, Trash2, Receipt, Printer, X, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 export const RefundSection = ({ onRefundComplete }) => {
-  const [sales, setSales] = useState([]);
+  const [products, setProducts] = useState([]);
   const [refunds, setRefunds] = useState([]);
-  const [selectedSale, setSelectedSale] = useState(null);
   const [memberName, setMemberName] = useState("");
-  const [reason, setReason] = useState("");
-  const [showRefundForm, setShowRefundForm] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [items, setItems] = useState([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchDate, setSearchDate] = useState("");
 
   const fetchData = async () => {
     try {
-      const [salesRes, refundsRes] = await Promise.all([
-        axios.get(`${API}/sales`),
+      const [productsRes, refundsRes] = await Promise.all([
+        axios.get(`${API}/products`),
         axios.get(`${API}/refunds`),
       ]);
-      setSales(salesRes.data);
+      setProducts(productsRes.data);
       setRefunds(refundsRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -77,18 +74,47 @@ export const RefundSection = ({ onRefundComplete }) => {
     }
   };
 
-  const handleSelectSale = (sale) => {
-    setSelectedSale(sale);
-    setShowRefundForm(true);
-    setMemberName("");
-    setReason("");
+  const addItem = () => {
+    if (products.length === 0) return;
+    setItems([
+      ...items,
+      {
+        product_id: products[0].id,
+        product_name: products[0].name,
+        quantity: 1,
+        unit_price: 0,
+      },
+    ]);
   };
 
+  const updateItem = (index, field, value) => {
+    const newItems = [...items];
+    if (field === "product_id") {
+      const product = products.find((p) => p.id === value);
+      newItems[index] = {
+        ...newItems[index],
+        product_id: value,
+        product_name: product?.name || "",
+      };
+    } else {
+      newItems[index] = { ...newItems[index], [field]: value };
+    }
+    setItems(newItems);
+  };
+
+  const removeItem = (index) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const totalAmount = items.reduce(
+    (sum, item) => sum + item.quantity * item.unit_price,
+    0
+  );
+
   const resetForm = () => {
-    setSelectedSale(null);
     setMemberName("");
-    setReason("");
-    setShowRefundForm(false);
+    setInvoiceNumber("");
+    setItems([]);
   };
 
   const submitRefund = async () => {
@@ -96,33 +122,51 @@ export const RefundSection = ({ onRefundComplete }) => {
       toast.error("Veuillez saisir le nom de l'adhérent");
       return;
     }
-    if (!reason.trim()) {
-      toast.error("Veuillez saisir le motif du remboursement");
+    if (items.length === 0) {
+      toast.error("Veuillez ajouter au moins un article");
       return;
     }
-    if (!selectedSale) {
-      toast.error("Veuillez sélectionner un ticket de caisse");
+    if (totalAmount <= 0) {
+      toast.error("Le montant total doit être supérieur à 0");
       return;
     }
 
     try {
+      // 1. Update stock for each item (add to "achats" column)
+      for (const item of items) {
+        const product = products.find((p) => p.id === item.product_id);
+        if (product) {
+          // Get current stock
+          const stockRes = await axios.get(`${API}/stock`);
+          const stockItem = stockRes.data.find((s) => s.product_id === item.product_id);
+          
+          if (stockItem) {
+            // Update achats and recalculate stock_final
+            const newAchats = stockItem.achats + item.quantity;
+            const newStockFinal = stockItem.stock_initial + newAchats - stockItem.ventes - stockItem.pertes;
+            
+            await axios.put(`${API}/stock/${item.product_id}`, {
+              achats: newAchats,
+              stock_final: newStockFinal,
+            });
+          }
+        }
+      }
+
+      // 2. Create refund record
       const response = await axios.post(`${API}/refunds`, {
         member_name: memberName,
-        items: [{
-          product_name: selectedSale.product_name,
-          quantity: selectedSale.quantity,
-          unit_price: selectedSale.unit_price,
-        }],
-        total_amount: selectedSale.total,
-        reason: reason,
-        original_sale_id: selectedSale.id,
+        items: items.map((item) => ({
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+        })),
+        total_amount: totalAmount,
+        reason: invoiceNumber ? `Facture N° ${invoiceNumber}` : "Achat pour la buvette",
       });
 
-      toast.success("Remboursement enregistré");
-      setCurrentReceipt({
-        ...response.data,
-        original_sale: selectedSale,
-      });
+      toast.success(`Remboursement enregistré - Stock mis à jour`);
+      setCurrentReceipt(response.data);
       setShowReceipt(true);
       resetForm();
       fetchData();
@@ -163,14 +207,8 @@ export const RefundSection = ({ onRefundComplete }) => {
               padding-bottom: 15px;
               margin-bottom: 15px;
             }
-            .header h1 {
-              margin: 0;
-              font-size: 18px;
-            }
-            .header p {
-              margin: 5px 0 0;
-              font-size: 14px;
-            }
+            .header h1 { margin: 0; font-size: 18px; }
+            .header p { margin: 5px 0 0; font-size: 14px; }
             .receipt-number {
               text-align: center;
               font-weight: bold;
@@ -178,12 +216,8 @@ export const RefundSection = ({ onRefundComplete }) => {
               padding: 10px;
               background: #f0f0f0;
             }
-            .info {
-              margin: 15px 0;
-            }
-            .info p {
-              margin: 5px 0;
-            }
+            .info { margin: 15px 0; }
+            .info p { margin: 5px 0; }
             .items {
               border-top: 1px dashed #000;
               border-bottom: 1px dashed #000;
@@ -228,19 +262,19 @@ export const RefundSection = ({ onRefundComplete }) => {
         <body>
           <div class="header">
             <h1>NATANJOU</h1>
-            <p>Reçu de Remboursement</p>
+            <p>Remboursement Achat</p>
           </div>
           
-          <div class="receipt-number">
-            N° ${currentReceipt.receipt_number}
-          </div>
+          <div class="receipt-number">N° ${currentReceipt.receipt_number}</div>
           
           <div class="info">
             <p><strong>Adhérent:</strong> ${currentReceipt.member_name}</p>
             <p><strong>Date:</strong> ${date.toLocaleDateString("fr-FR")} à ${date.toLocaleTimeString("fr-FR")}</p>
+            ${currentReceipt.reason ? `<p><strong>Réf:</strong> ${currentReceipt.reason}</p>` : ""}
           </div>
           
           <div class="items">
+            <p style="text-align:center; margin-bottom:10px;"><strong>Articles achetés pour la buvette</strong></p>
             ${currentReceipt.items
               .map(
                 (item) => `
@@ -258,17 +292,11 @@ export const RefundSection = ({ onRefundComplete }) => {
             <span>${currentReceipt.total_amount.toFixed(2)} €</span>
           </div>
           
-          <div class="reason">
-            <strong>Motif:</strong> ${currentReceipt.reason}
-          </div>
-          
-          <div class="signature">
-            Signature de l'adhérent
-          </div>
+          <div class="signature">Signature de l'adhérent</div>
           
           <div class="footer">
             <p>Association Natanjou</p>
-            <p>Merci de votre confiance</p>
+            <p>Merci pour votre contribution</p>
           </div>
         </body>
       </html>
@@ -282,16 +310,6 @@ export const RefundSection = ({ onRefundComplete }) => {
     }, 250);
   };
 
-  // Filter sales by date
-  const filteredSales = searchDate
-    ? sales.filter((sale) => sale.timestamp.startsWith(searchDate))
-    : sales;
-
-  // Sort by most recent
-  const sortedSales = [...filteredSales].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
-
   if (loading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -303,268 +321,248 @@ export const RefundSection = ({ onRefundComplete }) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Sales List - Select ticket to refund */}
-      <Card className="bg-card border-2 border-border" data-testid="sales-list-card">
+      {/* Form - Enregistrer un achat à rembourser */}
+      <Card className="bg-card border-2 border-border" data-testid="refund-form-card">
         <CardHeader>
           <CardTitle className="font-serif text-xl font-bold flex items-center gap-2">
-            <Receipt className="w-5 h-5" />
-            Tickets de Caisse
+            <ShoppingBag className="w-5 h-5" />
+            Remboursement Facture d'Achat
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Sélectionnez un ticket à rembourser
+            Enregistrez les achats d'un adhérent pour approvisionner la buvette
           </p>
         </CardHeader>
-        <CardContent>
-          {/* Date filter */}
-          <div className="flex gap-2 mb-4">
-            <div className="flex-1">
-              <Input
-                type="date"
-                value={searchDate}
-                onChange={(e) => setSearchDate(e.target.value)}
-                className="border-2"
-                data-testid="filter-date"
-              />
-            </div>
-            {searchDate && (
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="memberName" className="font-sans font-medium">
+              Nom de l'adhérent
+            </Label>
+            <Input
+              id="memberName"
+              value={memberName}
+              onChange={(e) => setMemberName(e.target.value)}
+              placeholder="Ex: Jean Dupont"
+              className="border-2"
+              data-testid="member-name-input"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="invoiceNumber" className="font-sans font-medium">
+              N° Facture / Ticket de caisse (optionnel)
+            </Label>
+            <Input
+              id="invoiceNumber"
+              value={invoiceNumber}
+              onChange={(e) => setInvoiceNumber(e.target.value)}
+              placeholder="Ex: 12345"
+              className="border-2"
+              data-testid="invoice-number-input"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="font-sans font-medium">Articles achetés</Label>
               <Button
+                type="button"
+                size="sm"
                 variant="outline"
-                onClick={() => setSearchDate("")}
+                onClick={addItem}
                 className="border-2"
+                data-testid="add-item-btn"
               >
-                Tout afficher
+                <Plus className="w-4 h-4 mr-1" />
+                Ajouter
               </Button>
+            </div>
+
+            {items.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4 bg-muted/50 rounded-lg">
+                Cliquez sur "Ajouter" pour saisir les articles de la facture
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {items.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg"
+                    data-testid={`refund-item-${index}`}
+                  >
+                    <select
+                      value={item.product_id}
+                      onChange={(e) => updateItem(index, "product_id", e.target.value)}
+                      className="flex-1 h-10 rounded-lg border-2 border-border bg-input px-3 font-sans text-sm"
+                      data-testid={`item-product-${index}`}
+                    >
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateItem(index, "quantity", parseInt(e.target.value) || 1)
+                      }
+                      className="w-16 text-center border-2"
+                      placeholder="Qté"
+                      data-testid={`item-qty-${index}`}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={item.unit_price}
+                        onChange={(e) =>
+                          updateItem(index, "unit_price", parseFloat(e.target.value) || 0)
+                        }
+                        className="w-20 text-center border-2"
+                        placeholder="Prix"
+                        data-testid={`item-price-${index}`}
+                      />
+                      <span className="text-sm text-muted-foreground">€</span>
+                    </div>
+                    <span className="font-bold tabular-nums w-20 text-right text-secondary">
+                      {(item.quantity * item.unit_price).toFixed(2)} €
+                    </span>
+                    <button
+                      onClick={() => removeItem(index)}
+                      className="p-2 text-destructive hover:bg-destructive/10 rounded-lg"
+                      data-testid={`remove-item-${index}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {items.length > 0 && (
+              <div className="flex justify-between items-center pt-3 border-t-2 border-dashed border-border">
+                <span className="font-serif font-bold">Total à rembourser</span>
+                <span
+                  className="font-sans text-xl font-bold tabular-nums text-secondary"
+                  data-testid="refund-total"
+                >
+                  {totalAmount.toFixed(2)} €
+                </span>
+              </div>
             )}
           </div>
 
-          {sortedSales.length === 0 ? (
+          <div className="p-3 bg-accent/10 rounded-lg border border-accent/20">
+            <p className="text-sm text-accent-foreground">
+              <strong>Note:</strong> Les quantités seront ajoutées à la colonne "Achats" du stock
+            </p>
+          </div>
+
+          <Button
+            onClick={submitRefund}
+            disabled={!memberName || items.length === 0 || totalAmount <= 0}
+            className="w-full bg-secondary text-secondary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] transition-all rounded-lg font-bold uppercase tracking-wide h-12"
+            data-testid="submit-refund-btn"
+          >
+            <Receipt className="w-5 h-5 mr-2" />
+            Valider le remboursement
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* History */}
+      <Card className="bg-card border-2 border-border" data-testid="refund-history-card">
+        <CardHeader>
+          <CardTitle className="font-serif text-xl font-bold">
+            Historique des remboursements
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {refunds.length === 0 ? (
             <div className="text-center py-12">
               <Receipt className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-              <p className="text-muted-foreground">Aucun ticket de caisse</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Les ventes apparaîtront ici
-              </p>
+              <p className="text-muted-foreground">Aucun remboursement</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[500px] overflow-y-auto">
-              {sortedSales.slice(0, 20).map((sale) => {
-                const date = new Date(sale.timestamp);
-                return (
-                  <div
-                    key={sale.id}
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                    data-testid={`sale-ticket-${sale.id}`}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{sale.product_name}</span>
-                        <span className="text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded">
-                          x{sale.quantity}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {date.toLocaleDateString("fr-FR")} à{" "}
-                        {date.toLocaleTimeString("fr-FR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold tabular-nums text-secondary">
-                        {sale.total.toFixed(2)} €
-                      </span>
-                      <Button
-                        size="sm"
-                        onClick={() => handleSelectSale(sale)}
-                        className="bg-destructive text-destructive-foreground"
-                        data-testid={`refund-btn-${sale.id}`}
-                      >
-                        <RotateCcw className="w-4 h-4 mr-1" />
-                        Rembourser
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="rounded-lg border-2 border-border overflow-hidden">
+              <Table data-testid="refunds-table">
+                <TableHeader>
+                  <TableRow className="bg-muted">
+                    <TableHead className="font-serif font-bold">N° Reçu</TableHead>
+                    <TableHead className="font-serif font-bold">Adhérent</TableHead>
+                    <TableHead className="font-serif font-bold text-right">Montant</TableHead>
+                    <TableHead className="font-serif font-bold text-center">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {refunds
+                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                    .slice(0, 10)
+                    .map((refund) => (
+                      <TableRow key={refund.id} data-testid={`refund-row-${refund.id}`}>
+                        <TableCell className="font-mono text-xs">
+                          {refund.receipt_number}
+                        </TableCell>
+                        <TableCell className="font-sans font-medium">
+                          {refund.member_name}
+                        </TableCell>
+                        <TableCell className="text-right font-bold tabular-nums text-secondary">
+                          {refund.total_amount.toFixed(2)} €
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => viewReceipt(refund)}
+                              className="border-2"
+                              data-testid={`view-receipt-${refund.id}`}
+                            >
+                              <Receipt className="w-4 h-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  data-testid={`delete-refund-${refund.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Supprimer ce remboursement ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Supprimer le remboursement de {refund.total_amount.toFixed(2)} € pour{" "}
+                                    {refund.member_name} ?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteRefund(refund.id)}
+                                    className="bg-destructive text-destructive-foreground"
+                                  >
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Refund Form or History */}
-      {showRefundForm && selectedSale ? (
-        <Card className="bg-card border-2 border-destructive" data-testid="refund-form-card">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="font-serif text-xl font-bold text-destructive">
-                Remboursement
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetForm}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Selected ticket info */}
-            <div className="p-4 bg-destructive/10 rounded-lg border-2 border-destructive/20">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                Ticket sélectionné
-              </p>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-bold">{selectedSale.product_name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Quantité: {selectedSale.quantity} × {selectedSale.unit_price.toFixed(2)} €
-                  </p>
-                </div>
-                <p className="text-2xl font-bold text-destructive tabular-nums">
-                  {selectedSale.total.toFixed(2)} €
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="memberName" className="font-sans font-medium">
-                Nom de l'adhérent
-              </Label>
-              <Input
-                id="memberName"
-                value={memberName}
-                onChange={(e) => setMemberName(e.target.value)}
-                placeholder="Ex: Jean Dupont"
-                className="border-2"
-                data-testid="member-name-input"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="reason" className="font-sans font-medium">
-                Motif du remboursement
-              </Label>
-              <Textarea
-                id="reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Ex: Article défectueux, erreur de commande..."
-                className="border-2 min-h-[80px]"
-                data-testid="reason-input"
-              />
-            </div>
-
-            <Button
-              onClick={submitRefund}
-              disabled={!memberName || !reason}
-              className="w-full bg-destructive text-destructive-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] transition-all rounded-lg font-bold uppercase tracking-wide h-12"
-              data-testid="submit-refund-btn"
-            >
-              <Receipt className="w-5 h-5 mr-2" />
-              Confirmer le remboursement
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="bg-card border-2 border-border" data-testid="refund-history-card">
-          <CardHeader>
-            <CardTitle className="font-serif text-xl font-bold">
-              Historique des remboursements
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {refunds.length === 0 ? (
-              <div className="text-center py-12">
-                <Receipt className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-                <p className="text-muted-foreground">Aucun remboursement</p>
-              </div>
-            ) : (
-              <div className="rounded-lg border-2 border-border overflow-hidden">
-                <Table data-testid="refunds-table">
-                  <TableHeader>
-                    <TableRow className="bg-muted">
-                      <TableHead className="font-serif font-bold">N° Reçu</TableHead>
-                      <TableHead className="font-serif font-bold">Adhérent</TableHead>
-                      <TableHead className="font-serif font-bold text-right">
-                        Montant
-                      </TableHead>
-                      <TableHead className="font-serif font-bold text-center">
-                        Action
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {refunds
-                      .sort(
-                        (a, b) =>
-                          new Date(b.timestamp).getTime() -
-                          new Date(a.timestamp).getTime()
-                      )
-                      .slice(0, 10)
-                      .map((refund) => (
-                        <TableRow key={refund.id} data-testid={`refund-row-${refund.id}`}>
-                          <TableCell className="font-mono text-xs">
-                            {refund.receipt_number}
-                          </TableCell>
-                          <TableCell className="font-sans font-medium">
-                            {refund.member_name}
-                          </TableCell>
-                          <TableCell className="text-right font-bold tabular-nums text-destructive">
-                            {refund.total_amount.toFixed(2)} €
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => viewReceipt(refund)}
-                                className="border-2"
-                                data-testid={`view-receipt-${refund.id}`}
-                              >
-                                <Receipt className="w-4 h-4" />
-                              </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                    data-testid={`delete-refund-${refund.id}`}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Supprimer ce remboursement ?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Supprimer le remboursement de {refund.total_amount.toFixed(2)} € pour {refund.member_name} ?
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => deleteRefund(refund.id)}
-                                      className="bg-destructive text-destructive-foreground"
-                                    >
-                                      Supprimer
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Receipt Modal */}
       <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
@@ -580,12 +578,8 @@ export const RefundSection = ({ onRefundComplete }) => {
             {currentReceipt && (
               <>
                 <div className="text-center border-b-2 border-dashed border-gray-200 pb-6 mb-6">
-                  <h2 className="font-serif text-2xl font-bold text-gray-900">
-                    NATANJOU
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Reçu de Remboursement
-                  </p>
+                  <h2 className="font-serif text-2xl font-bold text-gray-900">NATANJOU</h2>
+                  <p className="text-sm text-gray-500 mt-1">Remboursement Achat</p>
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-3 text-center mb-6">
@@ -604,14 +598,21 @@ export const RefundSection = ({ onRefundComplete }) => {
                   <p className="flex justify-between">
                     <span className="text-gray-500">Date:</span>
                     <span className="font-medium">
-                      {new Date(currentReceipt.timestamp).toLocaleDateString(
-                        "fr-FR"
-                      )}
+                      {new Date(currentReceipt.timestamp).toLocaleDateString("fr-FR")}
                     </span>
                   </p>
+                  {currentReceipt.reason && (
+                    <p className="flex justify-between">
+                      <span className="text-gray-500">Réf:</span>
+                      <span className="font-medium">{currentReceipt.reason}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div className="border-t border-b border-dashed border-gray-200 py-4 my-4">
+                  <p className="text-center text-xs text-gray-500 mb-3 uppercase tracking-wide">
+                    Articles achetés pour la buvette
+                  </p>
                   {currentReceipt.items.map((item, i) => (
                     <div key={i} className="flex justify-between py-1">
                       <span>
@@ -625,19 +626,10 @@ export const RefundSection = ({ onRefundComplete }) => {
                 </div>
 
                 <div className="flex justify-between items-center py-4 border-t-2 border-gray-900">
-                  <span className="font-serif text-lg font-bold">
-                    TOTAL REMBOURSÉ
-                  </span>
+                  <span className="font-serif text-lg font-bold">TOTAL REMBOURSÉ</span>
                   <span className="font-sans text-2xl font-bold tabular-nums" data-testid="receipt-total">
                     {currentReceipt.total_amount.toFixed(2)} €
                   </span>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                  <p className="text-sm">
-                    <span className="font-medium">Motif:</span>{" "}
-                    <span className="italic">{currentReceipt.reason}</span>
-                  </p>
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-gray-200 text-center">
