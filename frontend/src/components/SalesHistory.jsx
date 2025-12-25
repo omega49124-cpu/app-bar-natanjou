@@ -60,14 +60,13 @@ export const SalesHistory = () => {
     }
   };
 
-  const deleteAllSales = async () => {
+  const deleteSale = async (saleId) => {
     try {
-      await axios.delete(`${API}/sales`);
-      toast.success("Historique des ventes supprimé");
-      setSales([]);
-      setFilteredSales([]);
+      await axios.delete(`${API}/sales/${saleId}`);
+      toast.success("Vente supprimée");
+      fetchData();
     } catch (error) {
-      console.error("Error deleting sales:", error);
+      console.error("Error deleting sale:", error);
       toast.error("Erreur lors de la suppression");
     }
   };
