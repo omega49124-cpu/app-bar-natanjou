@@ -55,7 +55,9 @@ class StockEntry(BaseModel):
 class StockUpdate(BaseModel):
     stock_initial: Optional[int] = None
     achats: Optional[int] = None
+    ventes: Optional[int] = None
     pertes: Optional[int] = None
+    stock_final: Optional[int] = None
 
 class Sale(BaseModel):
     model_config = ConfigDict(extra="ignore")
