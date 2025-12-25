@@ -43,7 +43,9 @@ export const StockTable = () => {
     setEditValues({
       stock_initial: item.stock_initial,
       achats: item.achats,
+      ventes: item.ventes,
       pertes: item.pertes,
+      stock_final: item.stock_final,
     });
   };
 
