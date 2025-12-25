@@ -137,7 +137,7 @@ export default function Dashboard() {
 
       {/* Main Content with Tabs */}
       <div className="max-w-7xl mx-auto px-8 pb-12">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="bg-muted p-1 rounded-xl mb-6 no-print" data-testid="main-tabs">
             <TabsTrigger
               value="caisse"
