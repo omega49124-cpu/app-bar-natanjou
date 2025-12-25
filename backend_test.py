@@ -72,17 +72,67 @@ class BuvetteAPITester:
     def test_get_products(self):
         """Test getting products"""
         success, data = self.run_test("Get Products", "GET", "products", 200)
-        if success and isinstance(data, list) and len(data) == 4:
+        if success and isinstance(data, list) and len(data) >= 4:
             expected_products = ["Boisson", "Glace", "Café", "Vin"]
             found_products = [p.get("name") for p in data]
             if all(prod in found_products for prod in expected_products):
-                self.log_test("Products Content Validation", True, f"Found all 4 products: {found_products}")
+                self.log_test("Products Content Validation", True, f"Found all expected products: {found_products}")
                 return True, data
             else:
                 self.log_test("Products Content Validation", False, f"Missing products. Found: {found_products}")
         elif success:
-            self.log_test("Products Content Validation", False, f"Expected 4 products, got {len(data) if isinstance(data, list) else 'non-list'}")
+            self.log_test("Products Content Validation", False, f"Expected at least 4 products, got {len(data) if isinstance(data, list) else 'non-list'}")
         return success, data
+
+    def test_product_crud_operations(self):
+        """Test product CRUD operations (new feature)"""
+        print("\n🆕 Testing NEW FEATURE: Product CRUD Operations")
+        
+        # Test creating a new product
+        new_product_data = {
+            "name": "Test Produit",
+            "price": 2.50,
+            "category": "snack",
+            "image_url": "https://example.com/test.jpg"
+        }
+        
+        create_success, created_product = self.run_test(
+            "Create New Product", "POST", "products", 200, new_product_data
+        )
+        
+        if not create_success:
+            return False
+        
+        product_id = created_product.get("id")
+        if not product_id:
+            self.log_test("Product Creation ID Check", False, "No ID returned from created product")
+            return False
+        
+        # Verify product appears in products list
+        get_success, products = self.run_test("Get Products After Creation", "GET", "products", 200)
+        if get_success:
+            product_names = [p.get("name") for p in products]
+            if "Test Produit" in product_names:
+                self.log_test("Product Appears in List", True, "New product found in products list")
+            else:
+                self.log_test("Product Appears in List", False, f"New product not found. Products: {product_names}")
+        
+        # Test deleting the product
+        delete_success, _ = self.run_test(
+            "Delete Product", "DELETE", f"products/{product_id}", 200
+        )
+        
+        if delete_success:
+            # Verify product is removed from list
+            get_after_delete_success, products_after = self.run_test("Get Products After Deletion", "GET", "products", 200)
+            if get_after_delete_success:
+                product_names_after = [p.get("name") for p in products_after]
+                if "Test Produit" not in product_names_after:
+                    self.log_test("Product Removed from List", True, "Product successfully removed")
+                else:
+                    self.log_test("Product Removed from List", False, "Product still appears in list after deletion")
+        
+        return create_success and delete_success
 
     def test_stock_operations(self, products):
         """Test stock operations"""
