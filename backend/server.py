@@ -206,6 +206,14 @@ async def delete_all_sales():
     result = await db.sales.delete_many({})
     return {"message": f"{result.deleted_count} ventes supprimées"}
 
+@api_router.delete("/sales/{sale_id}")
+async def delete_sale(sale_id: str):
+    """Delete a single sale"""
+    result = await db.sales.delete_one({"id": sale_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Sale not found")
+    return {"message": "Vente supprimée"}
+
 @api_router.post("/sales", response_model=Sale)
 async def create_sale(sale: SaleCreate):
     product = await db.products.find_one({"id": sale.product_id}, {"_id": 0})
