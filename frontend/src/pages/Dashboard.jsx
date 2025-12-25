@@ -9,6 +9,7 @@ import StockTable from "@/components/StockTable";
 import RefundSection from "@/components/RefundSection";
 import ProductsManager from "@/components/ProductsManager";
 import SalesHistory from "@/components/SalesHistory";
+import NatanjouLogo from "@/components/NatanjouLogo";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
