@@ -361,6 +361,9 @@ export const SalesHistory = () => {
                     <TableHead className="font-serif font-bold text-right">
                       Total
                     </TableHead>
+                    <TableHead className="font-serif font-bold text-center">
+                      Action
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -394,6 +397,37 @@ export const SalesHistory = () => {
                           </TableCell>
                           <TableCell className="text-right font-bold tabular-nums text-secondary">
                             {sale.total.toFixed(2)} €
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  data-testid={`delete-sale-${sale.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Supprimer cette vente ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Supprimer la vente de {sale.quantity}x {sale.product_name} ({sale.total.toFixed(2)} €) ?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteSale(sale.id)}
+                                    className="bg-destructive text-destructive-foreground"
+                                  >
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </TableCell>
                         </TableRow>
                       );
