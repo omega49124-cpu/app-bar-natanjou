@@ -99,6 +99,21 @@ async def create_product(product: ProductCreate):
     product_obj = Product(**product.model_dump())
     doc = product_obj.model_dump()
     await db.products.insert_one(doc)
+    
+    # Initialize stock entry for new product
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    stock_entry = StockEntry(
+        product_id=product_obj.id,
+        product_name=product_obj.name,
+        stock_initial=0,
+        achats=0,
+        ventes=0,
+        pertes=0,
+        stock_final=0,
+        date=today
+    )
+    await db.stock.insert_one(stock_entry.model_dump())
+    
     return product_obj
 
 @api_router.delete("/products/{product_id}")
@@ -106,6 +121,8 @@ async def delete_product(product_id: str):
     result = await db.products.delete_one({"id": product_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
+    # Also delete associated stock entries
+    await db.stock.delete_many({"product_id": product_id})
     return {"message": "Product deleted"}
 
 # ===== STOCK ROUTES =====
