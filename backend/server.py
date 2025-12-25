@@ -200,6 +200,12 @@ async def get_today_sales():
     ).to_list(1000)
     return sales
 
+@api_router.delete("/sales")
+async def delete_all_sales():
+    """Delete all sales history"""
+    result = await db.sales.delete_many({})
+    return {"message": f"{result.deleted_count} ventes supprimées"}
+
 @api_router.post("/sales", response_model=Sale)
 async def create_sale(sale: SaleCreate):
     product = await db.products.find_one({"id": sale.product_id}, {"_id": 0})
