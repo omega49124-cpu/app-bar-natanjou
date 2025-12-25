@@ -1,0 +1,142 @@
+{
+  "identity": {
+    "name": "Natanjou Manager",
+    "persona": "E1: The Anti-AI Designer",
+    "vibe": "Community Clay",
+    "description": "A warm, tactile, and highly functional dashboard for association volunteers. It bridges the gap between a friendly community tool and a Swiss-precision inventory system.",
+    "emotional_tone": "Welcoming, Clear, Trustworthy, Tactile"
+  },
+  "typography": {
+    "primary_font": "Fraunces",
+    "secondary_font": "Manrope",
+    "font_weights": {
+      "light": 300,
+      "regular": 400,
+      "bold": 700,
+      "black": 900
+    },
+    "usage": {
+      "headings": "font-serif tracking-tight font-bold text-primary",
+      "body": "font-sans text-foreground leading-relaxed",
+      "numbers": "font-sans font-bold tracking-wide tabular-nums",
+      "labels": "font-sans text-xs uppercase tracking-widest text-muted-foreground"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#F4F1DE",
+      "foreground": "#2E4057",
+      "card": "#FFFFFF",
+      "card_foreground": "#2E4057",
+      "primary": "#2E4057",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#DA7B59",
+      "secondary_foreground": "#FFFFFF",
+      "muted": "#E0DED0",
+      "muted_foreground": "#6B7C93",
+      "accent": "#81B29A",
+      "accent_foreground": "#FFFFFF",
+      "destructive": "#E07A5F",
+      "destructive_foreground": "#FFFFFF",
+      "border": "#D4D1C1",
+      "input": "#FFFFFF",
+      "ring": "#DA7B59"
+    },
+    "gradients": {
+      "subtle_warmth": "linear-gradient(135deg, #F4F1DE 0%, #E0DED0 100%)",
+      "active_state": "linear-gradient(135deg, #DA7B59 0%, #E07A5F 100%)"
+    }
+  },
+  "layout_strategy": {
+    "dashboard": {
+      "type": "Swiss Grid",
+      "grid_cols": "grid-cols-12",
+      "gap": "gap-6",
+      "padding": "p-8 md:p-12"
+    },
+    "pos_system": {
+      "type": "Bento Grid",
+      "grid_cols": "grid-cols-2 md:grid-cols-4",
+      "gap": "gap-4",
+      "card_style": "aspect-square flex flex-col justify-between p-6 hover:scale-[1.02] transition-transform duration-200"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] transition-all rounded-lg font-bold uppercase tracking-wide",
+      "secondary": "bg-secondary text-secondary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] transition-all rounded-lg font-bold",
+      "ghost": "hover:bg-muted text-foreground transition-colors rounded-lg"
+    },
+    "cards": {
+      "default": "bg-card border-2 border-border shadow-sm rounded-xl overflow-hidden",
+      "interactive": "bg-card border-2 border-border shadow-md hover:border-primary cursor-pointer transition-all rounded-xl"
+    },
+    "inputs": {
+      "default": "bg-input border-2 border-border focus:border-primary focus:ring-0 rounded-lg h-12 px-4 font-sans"
+    },
+    "receipt_modal": {
+      "container": "bg-white p-8 shadow-2xl max-w-md mx-auto rotate-1 border-t-8 border-dashed border-gray-200 relative",
+      "texture": "before:content-[''] before:absolute before:inset-0 before:bg-[url('https://www.transparenttextures.com/patterns/paper.png')] before:opacity-50 before:pointer-events-none"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Use subtle grain or paper textures on the main background to reduce digital sterility.",
+    "shadows": "Use hard shadows (box-shadow: 4px 4px 0px) for buttons to give a tactile feel.",
+    "borders": "Use 2px borders generally to maintain distinct separation.",
+    "motion": "All interactions must have a spring-based transition. No linear eases."
+  },
+  "image_urls": {
+    "products": [
+      {
+        "name": "Coffee",
+        "url": "https://images.unsplash.com/photo-1712818897188-74fb980cae7b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBjdXAlMjBsYXR0ZSUyMGFydHxlbnwwfHx8d2hpdGV8MTc2NjY4NjAzN3ww&ixlib=rb-4.1.0&q=85",
+        "category": "beverage"
+      },
+      {
+        "name": "Soda",
+        "url": "https://images.unsplash.com/photo-1527960392543-80cd0fa46382?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHw0fHxzb2RhJTIwY2FuJTIwY29sZCUyMGJldmVyYWdlfGVufDB8fHx3aGl0ZXwxNzY2Njg2MDM5fDA&ixlib=rb-4.1.0&q=85",
+        "category": "beverage"
+      },
+      {
+        "name": "Ice Cream",
+        "url": "https://images.unsplash.com/photo-1559598561-526bcab44470?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwzfHxpY2UlMjBjcmVhbSUyMGNvbmUlMjBzdW1tZXJ8ZW58MHx8fHdoaXRlfDE3NjY2ODYwNDF8MA&ixlib=rb-4.1.0&q=85",
+        "category": "dessert"
+      },
+      {
+        "name": "Wine",
+        "url": "https://images.unsplash.com/photo-1609422465501-13182f6d6783?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwzfHxyZWQlMjB3aW5lJTIwYm90dGxlJTIwZ2xhc3N8ZW58MHx8fHdoaXRlfDE3NjY2ODYwNDJ8MA&ixlib=rb-4.1.0&q=85",
+        "category": "alcohol"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Install 'lucide-react' for icons. Use 'Fraunces' from Google Fonts for headings and 'Manrope' for body.",
+    "2. THEME: Implement the 'Community Clay' theme in tailwind.config.js. Do not use default shadcn grays.",
+    "3. LAYOUT: Create a main layout with a sidebar/topbar that uses the 'Swiss Grid' philosophy. The main content area should be spacious (p-8+).",
+    "4. POS PAGE: Create a 'Cash Register' view using the Bento Grid. Product cards must be large and touch-friendly.",
+    "5. STOCK PAGE: Create a data table using Shadcn Table, but style it with the 'Swiss' aesthetic (bold headers, zebra striping with 'muted' color).",
+    "6. RECEIPT: The receipt generation modal must look like a physical paper receipt. Use the 'receipt_modal' styles defined above.",
+    "7. PRINT: Ensure the Stock Table page has a specific print stylesheet (@media print) that removes UI elements and prints a clean black/white table.",
+    "8. DATA-TESTID: Add data-testid to all buttons, inputs, and key containers."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯📚🎭🎬🎪🎉🎊🎁🎀🎂🍰🎈🎨🎰💰💵💳🏦💎🪙💸🤑📊📈📉💹🔢🏆🥇 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Create new components that match the style and conventions of existing components when needed",
+    "Examine existing components to understand the project's component patterns before creating new ones",
+    "Components MUST use named exports (export const ComponentName = ...)",
+    "Pages MUST use default exports (export default function PageName() {...})",
+    "Use sonner for toasts"
+  ]
+}
