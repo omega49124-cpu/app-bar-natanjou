@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API } from "@/App";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Minus, ShoppingBag, Trash2, Check } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Trash2, Check, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
-export const CashRegister = ({ onSaleComplete }) => {
+export const CashRegister = ({ onSaleComplete, refreshTrigger }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/products`);
       setProducts(response.data);
@@ -23,11 +23,11 @@ export const CashRegister = ({ onSaleComplete }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts, refreshTrigger]);
 
   const addToCart = (product) => {
     const existing = cart.find((item) => item.product_id === product.id);
