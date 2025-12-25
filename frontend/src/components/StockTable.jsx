@@ -56,7 +56,19 @@ export const StockTable = () => {
 
   const saveEdit = async (productId) => {
     try {
-      await axios.put(`${API}/stock/${productId}`, editValues);
+      // Calculate stock_final automatically: stock_initial + achats - ventes - pertes
+      const calculatedStockFinal = 
+        (editValues.stock_initial || 0) + 
+        (editValues.achats || 0) - 
+        (editValues.ventes || 0) - 
+        (editValues.pertes || 0);
+      
+      const dataToSend = {
+        ...editValues,
+        stock_final: calculatedStockFinal
+      };
+      
+      await axios.put(`${API}/stock/${productId}`, dataToSend);
       toast.success("Stock mis à jour");
       fetchStock();
       cancelEditing();
