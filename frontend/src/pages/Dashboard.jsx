@@ -13,6 +13,7 @@ import SalesHistory from "@/components/SalesHistory";
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("caisse");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchStats = async () => {
     try {
@@ -20,6 +21,14 @@ export default function Dashboard() {
       setStats(response.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
+    }
+  };
+
+  // Refresh data when switching to caisse tab
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    if (value === "caisse") {
+      setRefreshTrigger((prev) => prev + 1);
     }
   };
 
