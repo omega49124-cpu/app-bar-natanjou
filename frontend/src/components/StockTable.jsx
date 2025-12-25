@@ -350,17 +350,32 @@ export const StockTable = () => {
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span
-                      className={`tabular-nums font-bold text-lg ${
-                        item.stock_final < 0
-                          ? "text-destructive"
-                          : item.stock_final === 0
-                          ? "text-muted-foreground"
-                          : "text-foreground"
-                      }`}
-                    >
-                      {item.stock_final}
-                    </span>
+                    {editingId === item.product_id ? (
+                      <Input
+                        type="number"
+                        value={editValues.stock_final}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            stock_final: parseInt(e.target.value) || 0,
+                          })
+                        }
+                        className="w-20 text-center mx-auto"
+                        data-testid="edit-stock-final"
+                      />
+                    ) : (
+                      <span
+                        className={`tabular-nums font-bold text-lg ${
+                          item.stock_final < 0
+                            ? "text-destructive"
+                            : item.stock_final === 0
+                            ? "text-muted-foreground"
+                            : "text-foreground"
+                        }`}
+                      >
+                        {item.stock_final}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-center no-print">
                     {editingId === item.product_id ? (
