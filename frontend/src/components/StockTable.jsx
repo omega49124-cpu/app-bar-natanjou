@@ -238,6 +238,20 @@ export const StockTable = () => {
         <div className="flex gap-2">
           <Button
             variant="outline"
+            onClick={recalculateStock}
+            disabled={recalculating}
+            className="border-2 border-accent text-accent hover:bg-accent hover:text-white"
+            data-testid="recalculate-stock-btn"
+          >
+            {recalculating ? (
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Calculator className="w-4 h-4 mr-2" />
+            )}
+            Recalculer
+          </Button>
+          <Button
+            variant="outline"
             onClick={fetchStock}
             className="border-2"
             data-testid="refresh-stock-btn"
