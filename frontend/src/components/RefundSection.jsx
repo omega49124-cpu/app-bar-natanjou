@@ -13,6 +13,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -45,6 +56,18 @@ export const RefundSection = ({ onRefundComplete }) => {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteRefund = async (refundId) => {
+    try {
+      await axios.delete(`${API}/refunds/${refundId}`);
+      toast.success("Remboursement supprimé");
+      fetchData();
+      onRefundComplete?.();
+    } catch (error) {
+      console.error("Error deleting refund:", error);
+      toast.error("Erreur lors de la suppression");
     }
   };
 
