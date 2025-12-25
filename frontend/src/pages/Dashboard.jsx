@@ -44,13 +44,13 @@ export default function Dashboard() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground py-6 px-8 shadow-lg no-print">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="font-serif text-3xl font-bold tracking-tight">
-              Natanjou
-            </h1>
-            <p className="font-sans text-sm opacity-80 mt-1">
-              Gestion de la Buvette
-            </p>
+          <div className="flex items-center gap-4">
+            <NatanjouLogo className="h-12 w-auto" />
+            <div>
+              <p className="font-sans text-sm opacity-80">
+                Gestion de la Buvette
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             {stats && (
