@@ -3,10 +3,12 @@ import axios from "axios";
 import { API } from "@/App";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, Package, ReceiptText, TrendingUp } from "lucide-react";
+import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History } from "lucide-react";
 import CashRegister from "@/components/CashRegister";
 import StockTable from "@/components/StockTable";
 import RefundSection from "@/components/RefundSection";
+import ProductsManager from "@/components/ProductsManager";
+import SalesHistory from "@/components/SalesHistory";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -152,6 +154,22 @@ export default function Dashboard() {
               <ReceiptText className="w-4 h-4 mr-2" />
               Remboursements
             </TabsTrigger>
+            <TabsTrigger
+              value="historique"
+              className="rounded-lg px-6 py-2 font-sans font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm"
+              data-testid="tab-history"
+            >
+              <History className="w-4 h-4 mr-2" />
+              Historique
+            </TabsTrigger>
+            <TabsTrigger
+              value="produits"
+              className="rounded-lg px-6 py-2 font-sans font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm"
+              data-testid="tab-products"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Produits
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="caisse" className="animate-fade-in">
@@ -164,6 +182,14 @@ export default function Dashboard() {
 
           <TabsContent value="remboursements" className="animate-fade-in">
             <RefundSection onRefundComplete={fetchStats} />
+          </TabsContent>
+
+          <TabsContent value="historique" className="animate-fade-in">
+            <SalesHistory />
+          </TabsContent>
+
+          <TabsContent value="produits" className="animate-fade-in">
+            <ProductsManager />
           </TabsContent>
         </Tabs>
       </div>
