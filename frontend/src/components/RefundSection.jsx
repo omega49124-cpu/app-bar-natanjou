@@ -484,15 +484,46 @@ export const RefundSection = ({ onRefundComplete }) => {
                           {refund.total_amount.toFixed(2)} €
                         </TableCell>
                         <TableCell className="text-center">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => viewReceipt(refund)}
-                            className="border-2"
-                            data-testid={`view-receipt-${refund.id}`}
-                          >
-                            <Receipt className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => viewReceipt(refund)}
+                              className="border-2"
+                              data-testid={`view-receipt-${refund.id}`}
+                            >
+                              <Receipt className="w-4 h-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  data-testid={`delete-refund-${refund.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Supprimer ce remboursement ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Supprimer le remboursement de {refund.total_amount.toFixed(2)} € pour {refund.member_name} ?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteRefund(refund.id)}
+                                    className="bg-destructive text-destructive-foreground"
+                                  >
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
