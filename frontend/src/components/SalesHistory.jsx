@@ -229,36 +229,6 @@ export const SalesHistory = () => {
                 <FileSpreadsheet className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
-                    data-testid="delete-sales-btn"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer tout
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Supprimer l'historique ?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Cette action est irréversible. Toutes les ventes enregistrées seront supprimées définitivement.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={deleteAllSales}
-                      className="bg-destructive text-destructive-foreground"
-                      data-testid="confirm-delete-sales-btn"
-                    >
-                      Supprimer tout
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
           </div>
         </CardContent>
