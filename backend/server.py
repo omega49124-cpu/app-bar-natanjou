@@ -251,6 +251,14 @@ async def get_refunds():
     refunds = await db.refunds.find({}, {"_id": 0}).to_list(1000)
     return refunds
 
+@api_router.delete("/refunds/{refund_id}")
+async def delete_refund(refund_id: str):
+    """Delete a single refund"""
+    result = await db.refunds.delete_one({"id": refund_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Refund not found")
+    return {"message": "Remboursement supprimé"}
+
 @api_router.post("/refunds", response_model=Refund)
 async def create_refund(refund: RefundCreate):
     refund_obj = Refund(**refund.model_dump())
