@@ -53,17 +53,6 @@ export default function Dashboard({ onLogout }) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {stats && (
-              <div className="text-right">
-                <p className="text-xs uppercase tracking-widest opacity-60">
-                  Recette du jour
-                </p>
-                <p className="font-sans text-2xl font-bold tabular-nums">
-                  {stats.net_revenue.toFixed(2)} €
-                </p>
-              </div>
-            )}
             <Button
               variant="ghost"
               size="sm"
@@ -74,7 +63,6 @@ export default function Dashboard({ onLogout }) {
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
             </Button>
-          </div>
           </div>
         </div>
       </header>
