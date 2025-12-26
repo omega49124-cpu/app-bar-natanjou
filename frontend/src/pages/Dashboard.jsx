@@ -53,6 +53,17 @@ export default function Dashboard({ onLogout }) {
               </p>
             </div>
           </div>
+          <div className="flex items-center gap-6">
+            {stats && (
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-widest opacity-60">
+                  Recette du jour
+                </p>
+                <p className="font-sans text-2xl font-bold tabular-nums">
+                  {stats.net_revenue.toFixed(2)} €
+                </p>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="sm"
