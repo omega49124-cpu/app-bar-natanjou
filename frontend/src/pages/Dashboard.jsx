@@ -3,7 +3,8 @@ import axios from "axios";
 import { API } from "@/App";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut } from "lucide-react";
 import CashRegister from "@/components/CashRegister";
 import StockTable from "@/components/StockTable";
 import RefundSection from "@/components/RefundSection";
@@ -11,7 +12,7 @@ import ProductsManager from "@/components/ProductsManager";
 import SalesHistory from "@/components/SalesHistory";
 import NatanjouLogo from "@/components/NatanjouLogo";
 
-export default function Dashboard() {
+export default function Dashboard({ onLogout }) {
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("caisse");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
