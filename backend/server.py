@@ -30,6 +30,17 @@ async def health_check():
     """Health check endpoint for Kubernetes"""
     return {"status": "healthy"}
 
+# ===== AUTH ENDPOINT =====
+APP_PASSWORD = os.environ.get('APP_PASSWORD', 'natanjou2024')
+
+@api_router.post("/auth/verify")
+async def verify_password(data: dict):
+    """Verify access password"""
+    password = data.get("password", "")
+    if password == APP_PASSWORD:
+        return {"success": True, "message": "Accès autorisé"}
+    raise HTTPException(status_code=401, detail="Mot de passe incorrect")
+
 # ===== MODELS =====
 
 class Product(BaseModel):
