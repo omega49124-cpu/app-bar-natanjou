@@ -24,6 +24,12 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# ===== HEALTH CHECK ENDPOINT (for Kubernetes) =====
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Kubernetes"""
+    return {"status": "healthy"}
+
 # ===== MODELS =====
 
 class Product(BaseModel):
