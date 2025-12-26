@@ -64,6 +64,17 @@ export default function Dashboard({ onLogout }) {
                 </p>
               </div>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onLogout}
+              className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              data-testid="logout-btn"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
           </div>
         </div>
       </header>
