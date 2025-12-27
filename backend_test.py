@@ -522,8 +522,8 @@ class BuvetteAPITester:
         return overall_success
 
 def main():
-    print("🧪 Starting Natanjou Buvette API Tests - RESET FUNCTIONALITY FOCUS")
-    print("=" * 60)
+    print("🧪 Starting Natanjou Buvette API Tests - ADMIN ENDPOINTS & RESET FUNCTIONALITY FOCUS")
+    print("=" * 70)
     
     tester = BuvetteAPITester()
     
