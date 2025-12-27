@@ -195,9 +195,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin backup endpoint - GET /api/admin/backup"
-    - "Admin restore endpoint - POST /api/admin/restore"
-    - "Admin factory reset endpoint - POST /api/admin/factory-reset"
+    - "Administration section UI - backup, restore, factory reset"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
