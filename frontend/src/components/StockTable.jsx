@@ -4,6 +4,7 @@ import { API } from "@/App";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -12,13 +13,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Printer, RefreshCw, Save, FileSpreadsheet, Calculator } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Printer, RefreshCw, Save, FileSpreadsheet, Calculator, RotateCcw, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 export const StockTable = () => {
   const [stock, setStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [resetError, setResetError] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
   const printRef = useRef(null);
@@ -46,6 +58,35 @@ export const StockTable = () => {
       toast.error("Erreur lors du recalcul");
     } finally {
       setRecalculating(false);
+    }
+  };
+
+  const handleResetClick = () => {
+    setShowResetDialog(true);
+    setResetCode("");
+    setResetError("");
+  };
+
+  const handleResetConfirm = async () => {
+    if (resetCode !== "natanjou2024") {
+      setResetError("Code incorrect");
+      return;
+    }
+
+    setResetting(true);
+    setResetError("");
+    
+    try {
+      await axios.post(`${API}/stock/reset`);
+      toast.success("Base de données réinitialisée avec succès");
+      setShowResetDialog(false);
+      setResetCode("");
+      fetchStock();
+    } catch (error) {
+      console.error("Error resetting data:", error);
+      toast.error("Erreur lors de la réinitialisation");
+    } finally {
+      setResetting(false);
     }
   };
 
