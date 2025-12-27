@@ -4,12 +4,13 @@ import { API } from "@/App";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut } from "lucide-react";
+import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut, Shield } from "lucide-react";
 import CashRegister from "@/components/CashRegister";
 import StockTable from "@/components/StockTable";
 import RefundSection from "@/components/RefundSection";
 import ProductsManager from "@/components/ProductsManager";
 import SalesHistory from "@/components/SalesHistory";
+import AdminSection from "@/components/AdminSection";
 import NatanjouLogo from "@/components/NatanjouLogo";
 
 export default function Dashboard({ onLogout }) {
