@@ -96,7 +96,13 @@ export const AdminSection = () => {
   const handleRestoreConfirm = async () => {
     if (!restoreData) return;
     
+    if (restoreCode !== "1967") {
+      setRestoreError("Code incorrect");
+      return;
+    }
+    
     setLoading(true);
+    setRestoreError("");
     try {
       const response = await axios.post(`${API}/admin/restore`, restoreData);
       toast.success(`Données restaurées: ${response.data.restored.products} produits, ${response.data.restored.sales} ventes`);
