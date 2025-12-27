@@ -192,6 +192,14 @@ export default function Dashboard({ onLogout }) {
               <Settings className="w-4 h-4 mr-2" />
               Produits
             </TabsTrigger>
+            <TabsTrigger
+              value="admin"
+              className="rounded-lg px-6 py-2 font-sans font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm"
+              data-testid="tab-admin"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Administration
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="caisse" className="animate-fade-in">
