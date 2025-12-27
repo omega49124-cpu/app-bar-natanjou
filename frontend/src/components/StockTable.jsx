@@ -154,6 +154,11 @@ export const StockTable = ({ onStockChange }) => {
       toast.success("Stock mis à jour");
       fetchStock();
       cancelEditing();
+      
+      // Notify parent to refresh stats if sales were added
+      if (ventesIncrease > 0 && onStockChange) {
+        onStockChange();
+      }
     } catch (error) {
       console.error("Error updating stock:", error);
       toast.error("Erreur lors de la mise à jour");
