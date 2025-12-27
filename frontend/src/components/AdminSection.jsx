@@ -30,6 +30,8 @@ export const AdminSection = () => {
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [resetCode, setResetCode] = useState("");
   const [resetError, setResetError] = useState("");
+  const [restoreCode, setRestoreCode] = useState("");
+  const [restoreError, setRestoreError] = useState("");
   const [restoreData, setRestoreData] = useState(null);
   const [restoreFileName, setRestoreFileName] = useState("");
   const fileInputRef = useRef(null);
