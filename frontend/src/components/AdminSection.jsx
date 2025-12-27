@@ -109,6 +109,8 @@ export const AdminSection = () => {
       setShowRestoreDialog(false);
       setRestoreData(null);
       setRestoreFileName("");
+      setRestoreCode("");
+      setRestoreError("");
       
       // Reload page to refresh all data
       setTimeout(() => window.location.reload(), 1000);
