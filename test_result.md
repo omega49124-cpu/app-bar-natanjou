@@ -101,3 +101,49 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: Application de gestion de buvette pour l'association Natanjou. Fonctionnalité actuelle à tester - bouton de réinitialisation sécurisé dans le tableau de stock.
+
+backend:
+  - task: "Reset stock endpoint - POST /api/stock/reset"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Endpoint exists at /api/stock/reset. It deletes all sales, resets ventes to 0 for all products, and recalculates stock_final. Preserves stock_initial, achats, and pertes."
+
+frontend:
+  - task: "Reset button with confirmation dialog"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/StockTable.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Dialog opens with security code input. Shows error 'Code incorrect' for wrong code. Calls /api/stock/reset when code 'natanjou2024' is entered."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Reset stock endpoint - POST /api/stock/reset"
+    - "Reset button with confirmation dialog"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+    - message: "Please test the reset functionality: 1) Test backend endpoint POST /api/stock/reset directly, 2) Test frontend dialog with wrong code (should show error), 3) Test complete reset flow with correct code 'natanjou2024'. Login password is 'natanjou2024'. There is currently 1 sale in the database (2 Boissons) that should be deleted after reset. Verify that after reset: sales are empty, ventes is 0 for all products, stock_final is recalculated."
