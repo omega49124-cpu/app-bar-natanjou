@@ -569,10 +569,20 @@ export const RefundSection = ({ onRefundComplete }) => {
 
       {/* History */}
       <Card className="bg-card border-2 border-border" data-testid="refund-history-card">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-serif text-xl font-bold">
             Historique des remboursements
           </CardTitle>
+          <Button
+            variant="outline"
+            onClick={exportRefundsPDF}
+            disabled={refunds.length === 0}
+            className="border-2 border-primary text-primary hover:bg-primary hover:text-white"
+            data-testid="export-refunds-pdf-btn"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            PDF
+          </Button>
         </CardHeader>
         <CardContent>
           {refunds.length === 0 ? (
