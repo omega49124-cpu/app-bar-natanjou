@@ -398,42 +398,61 @@ async def get_refund(refund_id: str):
 
 @api_router.post("/seed")
 async def seed_data():
-    """Seed initial products"""
+    """Seed initial products only if database is empty - NEVER deletes existing data"""
+    # Check if products already exist
+    existing_products = await db.products.count_documents({})
+    if existing_products > 0:
+        return {"message": "Données existantes conservées", "products": existing_products}
+    
+    # Only seed if database is completely empty
     products = [
         {
             "id": str(uuid.uuid4()),
             "name": "Boisson",
             "price": 1.00,
             "category": "beverage",
-            "image_url": "https://images.unsplash.com/photo-1527960392543-80cd0fa46382?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHw0fHxzb2RhJTIwY2FuJTIwY29sZCUyMGJldmVyYWdlfGVufDB8fHx8&ixlib=rb-4.1.0&q=85&w=200"
+            "image_url": "https://images.unsplash.com/photo-1630404365865-97ff92feba6a?crop=entropy&cs=srgb&fm=jpg&w=400"
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Glace",
             "price": 1.00,
             "category": "dessert",
-            "image_url": "https://images.unsplash.com/photo-1559598561-526bcab44470?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwzfHxpY2UlMjBjcmVhbSUyMGNvbmUlMjBzdW1tZXJ8ZW58MHx8fHx8&ixlib=rb-4.1.0&q=85&w=200"
+            "image_url": "https://images.unsplash.com/photo-1745914412106-dbdcf0a41377?crop=entropy&cs=srgb&fm=jpg&w=400"
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Café",
             "price": 0.50,
             "category": "beverage",
-            "image_url": "https://images.unsplash.com/photo-1712818897188-74fb980cae7b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBjdXAlMjBsYXR0ZSUyMGFydHxlbnwwfHx8fHx8&ixlib=rb-4.1.0&q=85&w=200"
+            "image_url": "https://images.unsplash.com/photo-1645445644664-8f44112f334c?crop=entropy&cs=srgb&fm=jpg&w=400"
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Vin",
             "price": 7.00,
             "category": "alcohol",
-            "image_url": "https://images.unsplash.com/photo-1609422465501-13182f6d6783?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwzfHxyZWQlMjB3aW5lJTIwYm90dGxlJTIwZ2xhc3N8ZW58MHx8fHx8&ixlib=rb-4.1.0&q=85&w=200"
+            "image_url": "https://images.pexels.com/photos/1765496/pexels-photo-1765496.jpeg?w=400"
         }
     ]
     
-    # Clear existing and insert new
-    await db.products.delete_many({})
-    await db.stock.delete_many({})
     await db.products.insert_many(products)
+    
+    # Initialize stock with default values
+    for product in products:
+        stock_entry = StockEntry(
+            product_id=product["id"],
+            product_name=product["name"],
+            stock_initial=0,
+            achats=0,
+            ventes=0,
+            pertes=0,
+            stock_final=0,
+            date="permanent"  # Use "permanent" instead of daily date
+        )
+        await db.stock.insert_one(stock_entry.model_dump())
+    
+    return {"message": "Données initiales créées", "products": len(products)}
     
     # Initialize stock
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
