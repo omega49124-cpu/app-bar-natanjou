@@ -315,6 +315,27 @@ export const AdminSection = () => {
               ⚠️ Toutes les données actuelles seront remplacées.
             </p>
 
+            <div className="space-y-2">
+              <Label htmlFor="restoreCode" className="font-medium">
+                Entrez le code de confirmation
+              </Label>
+              <Input
+                id="restoreCode"
+                type="password"
+                value={restoreCode}
+                onChange={(e) => {
+                  setRestoreCode(e.target.value);
+                  setRestoreError("");
+                }}
+                placeholder="Code de sécurité"
+                className="border-2"
+                data-testid="restore-code-input"
+              />
+              {restoreError && (
+                <p className="text-sm text-destructive font-medium">{restoreError}</p>
+              )}
+            </div>
+
             <div className="flex gap-3 pt-4">
               <Button
                 variant="outline"
