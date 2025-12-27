@@ -317,8 +317,90 @@ export const StockTable = () => {
             <Printer className="w-4 h-4 mr-2" />
             Imprimer
           </Button>
+          <Button
+            variant="outline"
+            onClick={handleResetClick}
+            className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
+            data-testid="reset-stock-btn"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Réinitialiser
+          </Button>
         </div>
       </CardHeader>
+
+      {/* Reset Confirmation Dialog */}
+      <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <DialogContent className="max-w-md" data-testid="reset-dialog">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl font-bold text-destructive flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Réinitialisation complète
+            </DialogTitle>
+            <DialogDescription className="text-base mt-4">
+              <strong className="text-destructive">ATTENTION :</strong> Cette action va remettre à zéro :
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground bg-destructive/10 p-4 rounded-lg">
+              <li>Toutes les <strong>ventes</strong> seront supprimées</li>
+              <li>Le compteur de <strong>ventes</strong> du stock passera à 0</li>
+              <li>Le <strong>stock final</strong> sera recalculé</li>
+            </ul>
+            
+            <p className="text-sm text-muted-foreground">
+              Les données de <strong>stock initial</strong>, <strong>achats</strong> et <strong>pertes</strong> seront conservées.
+            </p>
+
+            <div className="space-y-2">
+              <Label htmlFor="resetCode" className="font-medium">
+                Entrez le code de confirmation
+              </Label>
+              <Input
+                id="resetCode"
+                type="password"
+                value={resetCode}
+                onChange={(e) => {
+                  setResetCode(e.target.value);
+                  setResetError("");
+                }}
+                placeholder="Code de sécurité"
+                className="border-2"
+                data-testid="reset-code-input"
+              />
+              {resetError && (
+                <p className="text-sm text-destructive font-medium">{resetError}</p>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowResetDialog(false)}
+                className="flex-1 border-2"
+                data-testid="cancel-reset-btn"
+              >
+                Annuler
+              </Button>
+              <Button
+                onClick={handleResetConfirm}
+                disabled={!resetCode || resetting}
+                className="flex-1 bg-destructive text-destructive-foreground"
+                data-testid="confirm-reset-btn"
+              >
+                {resetting ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                )}
+                Confirmer la réinitialisation
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <CardContent ref={printRef}>
         <div className="rounded-lg border-2 border-border overflow-hidden">
           <Table className="stock-table" data-testid="stock-table">
