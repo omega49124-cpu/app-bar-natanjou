@@ -540,10 +540,13 @@ def main():
     print("\n💰 Step 4: Testing sales operations...")
     sales_success = tester.test_sales_operations(products if products_success else [])
     
-    print("\n🔄 Step 5: MAIN FOCUS - Testing RESET functionality...")
+    print("\n🔧 Step 5: MAIN FOCUS - Testing ADMIN endpoints...")
+    admin_success = tester.test_admin_endpoints()
+    
+    print("\n🔄 Step 6: Testing RESET functionality...")
     reset_success = tester.test_reset_functionality()
     
-    print("\n🏠 Step 6: Testing root endpoint...")
+    print("\n🏠 Step 7: Testing root endpoint...")
     root_success = tester.test_root_endpoint()
     
     # Print summary
