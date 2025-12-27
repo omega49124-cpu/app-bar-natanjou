@@ -131,7 +131,7 @@ export const AdminSection = () => {
 
   // Factory Reset - Confirm and execute
   const handleFactoryResetConfirm = async () => {
-    if (resetCode !== "natanjou2024") {
+    if (resetCode !== "1967") {
       setResetError("Code incorrect");
       return;
     }
