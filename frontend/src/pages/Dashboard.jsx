@@ -207,7 +207,7 @@ export default function Dashboard({ onLogout }) {
           </TabsContent>
 
           <TabsContent value="stock" className="animate-fade-in">
-            <StockTable />
+            <StockTable onStockChange={fetchStats} />
           </TabsContent>
 
           <TabsContent value="remboursements" className="animate-fade-in">
