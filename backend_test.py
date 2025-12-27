@@ -551,13 +551,15 @@ def main():
     
     # Print summary
     print("\n" + "=" * 60)
-    print("📊 TEST SUMMARY - RESET FUNCTIONALITY FOCUS")
+    print("📊 TEST SUMMARY - ADMIN ENDPOINTS & RESET FUNCTIONALITY FOCUS")
     print("=" * 60)
     print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
     print(f"Success rate: {(tester.tests_passed/tester.tests_run*100):.1f}%")
     
-    # Highlight reset functionality
+    # Highlight admin endpoints and reset functionality
+    print(f"\n🔧 ADMIN ENDPOINTS STATUS:")
+    print(f"   Admin Endpoints Test: {'✅ PASSED' if admin_success else '❌ FAILED'}")
     print(f"\n🔄 RESET FUNCTIONALITY STATUS:")
     print(f"   Reset Endpoint Test: {'✅ PASSED' if reset_success else '❌ FAILED'}")
     
