@@ -362,47 +362,41 @@ class BuvetteAPITester:
         return overall_success
 
 def main():
-    print("🧪 Starting Natanjou Buvette API Tests - NEW FEATURES")
+    print("🧪 Starting Natanjou Buvette API Tests - RESET FUNCTIONALITY FOCUS")
     print("=" * 60)
     
     tester = BuvetteAPITester()
     
-    # Test sequence
+    # Test sequence - focusing on reset functionality
     print("\n📦 Step 1: Seeding data...")
     seed_success, _ = tester.test_seed_data()
     
     print("\n🛍️ Step 2: Testing products...")
     products_success, products = tester.test_get_products()
     
-    print("\n🆕 Step 3: Testing NEW FEATURE - Product CRUD...")
-    product_crud_success = tester.test_product_crud_operations()
-    
-    print("\n📊 Step 4: Testing stock operations...")
+    print("\n📊 Step 3: Testing stock operations...")
     stock_success = tester.test_stock_operations(products if products_success else [])
     
-    print("\n💰 Step 5: Testing sales operations...")
+    print("\n💰 Step 4: Testing sales operations...")
     sales_success = tester.test_sales_operations(products if products_success else [])
     
-    print("\n💸 Step 6: Testing refund operations...")
-    refund_success = tester.test_refund_operations(products if products_success else [])
+    print("\n🔄 Step 5: MAIN FOCUS - Testing RESET functionality...")
+    reset_success = tester.test_reset_functionality()
     
-    print("\n📈 Step 7: Testing stats...")
-    stats_success = tester.test_stats()
-    
-    print("\n🏠 Step 8: Testing root endpoint...")
+    print("\n🏠 Step 6: Testing root endpoint...")
     root_success = tester.test_root_endpoint()
     
     # Print summary
     print("\n" + "=" * 60)
-    print("📊 TEST SUMMARY - NEW FEATURES TESTING")
+    print("📊 TEST SUMMARY - RESET FUNCTIONALITY FOCUS")
     print("=" * 60)
     print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
     print(f"Success rate: {(tester.tests_passed/tester.tests_run*100):.1f}%")
     
-    # Highlight new features
-    print(f"\n🆕 NEW FEATURES STATUS:")
-    print(f"   Product CRUD Operations: {'✅ PASSED' if product_crud_success else '❌ FAILED'}")
+    # Highlight reset functionality
+    print(f"\n🔄 RESET FUNCTIONALITY STATUS:")
+    print(f"   Reset Endpoint Test: {'✅ PASSED' if reset_success else '❌ FAILED'}")
     
     # Print failed tests
     failed_tests = [r for r in tester.test_results if not r["success"]]
