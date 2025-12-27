@@ -230,6 +230,166 @@ class BuvetteAPITester:
         """Test root API endpoint"""
         return self.run_test("API Root", "GET", "", 200)
 
+    def test_admin_endpoints(self):
+        """Test the new Administration endpoints - current focus"""
+        print("\n🔧 Testing ADMINISTRATION ENDPOINTS (Current Focus)")
+        print("=" * 50)
+        
+        # Step 1: Test backup endpoint
+        print("\n💾 Step 1: Testing backup endpoint...")
+        backup_success, backup_data = self.run_test("GET /api/admin/backup", "GET", "admin/backup", 200)
+        
+        if not backup_success:
+            self.log_test("Admin Backup Endpoint", False, "Backup endpoint failed")
+            return False
+        
+        # Validate backup structure
+        required_fields = ["version", "timestamp", "data"]
+        required_data_fields = ["products", "stock", "sales", "refunds"]
+        
+        backup_structure_valid = True
+        for field in required_fields:
+            if field not in backup_data:
+                backup_structure_valid = False
+                self.log_test(f"Backup Structure - {field}", False, f"Missing field: {field}")
+        
+        if "data" in backup_data:
+            for data_field in required_data_fields:
+                if data_field not in backup_data["data"]:
+                    backup_structure_valid = False
+                    self.log_test(f"Backup Data Structure - {data_field}", False, f"Missing data field: {data_field}")
+        
+        if backup_structure_valid:
+            self.log_test("Backup Structure Validation", True, "All required fields present")
+            print(f"   ✅ Backup contains: {len(backup_data['data']['products'])} products, {len(backup_data['data']['stock'])} stock entries, {len(backup_data['data']['sales'])} sales, {len(backup_data['data']['refunds'])} refunds")
+        
+        # Step 2: Test restore endpoint
+        print("\n🔄 Step 2: Testing restore endpoint...")
+        restore_success, restore_response = self.run_test("POST /api/admin/restore", "POST", "admin/restore", 200, backup_data)
+        
+        if restore_success:
+            # Validate restore response structure
+            if "message" in restore_response and "restored" in restore_response:
+                restored_data = restore_response["restored"]
+                expected_counts = {
+                    "products": len(backup_data["data"]["products"]),
+                    "stock": len(backup_data["data"]["stock"]),
+                    "sales": len(backup_data["data"]["sales"]),
+                    "refunds": len(backup_data["data"]["refunds"])
+                }
+                
+                restore_counts_correct = True
+                for collection, expected_count in expected_counts.items():
+                    actual_count = restored_data.get(collection, -1)
+                    if actual_count != expected_count:
+                        restore_counts_correct = False
+                        self.log_test(f"Restore Count - {collection}", False, f"Expected {expected_count}, got {actual_count}")
+                
+                if restore_counts_correct:
+                    self.log_test("Restore Counts Validation", True, "All collection counts match backup")
+                    print(f"   ✅ Restored: {restored_data}")
+            else:
+                self.log_test("Restore Response Structure", False, "Missing message or restored fields")
+        
+        # Step 3: Test factory reset endpoint
+        print("\n🏭 Step 3: Testing factory reset endpoint...")
+        factory_reset_success, factory_response = self.run_test("POST /api/admin/factory-reset", "POST", "admin/factory-reset", 200)
+        
+        if not factory_reset_success:
+            self.log_test("Factory Reset Endpoint", False, "Factory reset endpoint failed")
+            return False
+        
+        # Validate factory reset response
+        if "message" in factory_response and "products_created" in factory_response:
+            if factory_response["products_created"] == 4:
+                self.log_test("Factory Reset Products Count", True, "Created exactly 4 products")
+            else:
+                self.log_test("Factory Reset Products Count", False, f"Expected 4 products, got {factory_response['products_created']}")
+        else:
+            self.log_test("Factory Reset Response Structure", False, "Missing message or products_created fields")
+        
+        # Step 4: Verify factory reset results
+        print("\n🔍 Step 4: Verifying factory reset results...")
+        
+        # Check products
+        products_success, products_after_reset = self.run_test("Get Products After Factory Reset", "GET", "products", 200)
+        if products_success:
+            if len(products_after_reset) == 4:
+                self.log_test("Factory Reset - Product Count", True, "Exactly 4 products exist")
+                
+                # Check product names and prices
+                expected_products = {
+                    "Boisson": 1.00,
+                    "Glace": 1.00,
+                    "Café": 0.50,
+                    "Vin": 7.00
+                }
+                
+                products_correct = True
+                found_products = {}
+                for product in products_after_reset:
+                    name = product.get("name")
+                    price = product.get("price")
+                    found_products[name] = price
+                
+                for expected_name, expected_price in expected_products.items():
+                    if expected_name not in found_products:
+                        products_correct = False
+                        self.log_test(f"Factory Reset - Product {expected_name}", False, "Product not found")
+                    elif found_products[expected_name] != expected_price:
+                        products_correct = False
+                        self.log_test(f"Factory Reset - Product {expected_name} Price", False, f"Expected {expected_price}, got {found_products[expected_name]}")
+                
+                if products_correct:
+                    self.log_test("Factory Reset - Product Names and Prices", True, "All products have correct names and prices")
+            else:
+                self.log_test("Factory Reset - Product Count", False, f"Expected 4 products, got {len(products_after_reset)}")
+        
+        # Check stock entries
+        stock_success, stock_after_reset = self.run_test("Get Stock After Factory Reset", "GET", "stock", 200)
+        if stock_success:
+            if len(stock_after_reset) == 4:
+                self.log_test("Factory Reset - Stock Count", True, "Exactly 4 stock entries exist")
+                
+                # Check all stock values are 0
+                stock_values_correct = True
+                for stock in stock_after_reset:
+                    product_name = stock.get("product_name", "Unknown")
+                    for field in ["stock_initial", "achats", "ventes", "pertes", "stock_final"]:
+                        value = stock.get(field, -1)
+                        if value != 0:
+                            stock_values_correct = False
+                            self.log_test(f"Factory Reset - Stock {field} for {product_name}", False, f"Expected 0, got {value}")
+                
+                if stock_values_correct:
+                    self.log_test("Factory Reset - Stock Values", True, "All stock values are 0")
+            else:
+                self.log_test("Factory Reset - Stock Count", False, f"Expected 4 stock entries, got {len(stock_after_reset)}")
+        
+        # Check sales and refunds are empty
+        sales_success, sales_after_reset = self.run_test("Get Sales After Factory Reset", "GET", "sales", 200)
+        if sales_success:
+            if len(sales_after_reset) == 0:
+                self.log_test("Factory Reset - Sales Empty", True, "Sales collection is empty")
+            else:
+                self.log_test("Factory Reset - Sales Empty", False, f"Expected 0 sales, got {len(sales_after_reset)}")
+        
+        refunds_success, refunds_after_reset = self.run_test("Get Refunds After Factory Reset", "GET", "refunds", 200)
+        if refunds_success:
+            if len(refunds_after_reset) == 0:
+                self.log_test("Factory Reset - Refunds Empty", True, "Refunds collection is empty")
+            else:
+                self.log_test("Factory Reset - Refunds Empty", False, f"Expected 0 refunds, got {len(refunds_after_reset)}")
+        
+        # Overall admin endpoints test result
+        overall_success = (backup_success and backup_structure_valid and 
+                          restore_success and factory_reset_success)
+        
+        self.log_test("OVERALL ADMIN ENDPOINTS", overall_success, 
+                     "All admin endpoints working correctly" if overall_success else "Admin endpoints have issues")
+        
+        return overall_success
+
     def test_reset_functionality(self):
         """Test the reset functionality - main focus of current testing"""
         print("\n🔄 Testing RESET FUNCTIONALITY (Current Focus)")
