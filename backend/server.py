@@ -89,6 +89,7 @@ class Sale(BaseModel):
 class SaleCreate(BaseModel):
     product_id: str
     quantity: int
+    skip_stock_update: bool = False  # If True, don't update stock (for manual stock edits)
 
 class Refund(BaseModel):
     model_config = ConfigDict(extra="ignore")
