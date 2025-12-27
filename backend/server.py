@@ -451,6 +451,133 @@ async def seed_data():
     
     return {"message": "Data seeded successfully", "products": len(products)}
 
+# ===== ADMIN ROUTES =====
+
+@api_router.get("/admin/backup")
+async def backup_data():
+    """Export all data as JSON for backup"""
+    products = await db.products.find({}, {"_id": 0}).to_list(1000)
+    stock = await db.stock.find({}, {"_id": 0}).to_list(1000)
+    sales = await db.sales.find({}, {"_id": 0}).to_list(10000)
+    refunds = await db.refunds.find({}, {"_id": 0}).to_list(1000)
+    
+    backup = {
+        "version": "1.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "data": {
+            "products": products,
+            "stock": stock,
+            "sales": sales,
+            "refunds": refunds
+        }
+    }
+    return backup
+
+@api_router.post("/admin/restore")
+async def restore_data(backup: dict):
+    """Restore all data from a backup JSON"""
+    if "data" not in backup:
+        raise HTTPException(status_code=400, detail="Invalid backup format")
+    
+    data = backup["data"]
+    
+    # Clear all existing data
+    await db.products.delete_many({})
+    await db.stock.delete_many({})
+    await db.sales.delete_many({})
+    await db.refunds.delete_many({})
+    
+    # Restore data
+    restored = {
+        "products": 0,
+        "stock": 0,
+        "sales": 0,
+        "refunds": 0
+    }
+    
+    if data.get("products"):
+        await db.products.insert_many(data["products"])
+        restored["products"] = len(data["products"])
+    
+    if data.get("stock"):
+        await db.stock.insert_many(data["stock"])
+        restored["stock"] = len(data["stock"])
+    
+    if data.get("sales"):
+        await db.sales.insert_many(data["sales"])
+        restored["sales"] = len(data["sales"])
+    
+    if data.get("refunds"):
+        await db.refunds.insert_many(data["refunds"])
+        restored["refunds"] = len(data["refunds"])
+    
+    return {
+        "message": "Données restaurées avec succès",
+        "restored": restored
+    }
+
+@api_router.post("/admin/factory-reset")
+async def factory_reset():
+    """Complete factory reset - delete everything and recreate default products"""
+    # Delete ALL data
+    await db.products.delete_many({})
+    await db.stock.delete_many({})
+    await db.sales.delete_many({})
+    await db.refunds.delete_many({})
+    
+    # Recreate default products
+    default_products = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Boisson",
+            "price": 1.00,
+            "category": "beverage",
+            "image_url": "https://images.unsplash.com/photo-1630404365865-97ff92feba6a?crop=entropy&cs=srgb&fm=jpg&w=400"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Glace",
+            "price": 1.00,
+            "category": "dessert",
+            "image_url": "https://images.unsplash.com/photo-1745914412106-dbdcf0a41377?crop=entropy&cs=srgb&fm=jpg&w=400"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Café",
+            "price": 0.50,
+            "category": "beverage",
+            "image_url": "https://images.unsplash.com/photo-1645445644664-8f44112f334c?crop=entropy&cs=srgb&fm=jpg&w=400"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Vin",
+            "price": 7.00,
+            "category": "alcohol",
+            "image_url": "https://images.pexels.com/photos/1765496/pexels-photo-1765496.jpeg?w=400"
+        }
+    ]
+    
+    await db.products.insert_many(default_products)
+    
+    # Initialize stock for default products with 0
+    for product in default_products:
+        stock_entry = StockEntry(
+            product_id=product["id"],
+            product_name=product["name"],
+            stock_initial=0,
+            achats=0,
+            ventes=0,
+            pertes=0,
+            stock_final=0,
+            date="permanent"
+        )
+        await db.stock.insert_one(stock_entry.model_dump())
+    
+    return {
+        "message": "Remise à zéro complète effectuée",
+        "products_created": len(default_products)
+    }
+
 # ===== STATS =====
 
 @api_router.get("/stats/today")
