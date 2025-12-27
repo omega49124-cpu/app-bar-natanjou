@@ -230,6 +230,137 @@ class BuvetteAPITester:
         """Test root API endpoint"""
         return self.run_test("API Root", "GET", "", 200)
 
+    def test_reset_functionality(self):
+        """Test the reset functionality - main focus of current testing"""
+        print("\n🔄 Testing RESET FUNCTIONALITY (Current Focus)")
+        print("=" * 50)
+        
+        # Step 1: Get current state before reset
+        print("\n📊 Step 1: Getting current state...")
+        stock_success, stock_before = self.run_test("Get Stock Before Reset", "GET", "stock", 200)
+        sales_success, sales_before = self.run_test("Get Sales Before Reset", "GET", "sales", 200)
+        
+        if not stock_success or not sales_success:
+            self.log_test("Reset Test Setup", False, "Could not get initial state")
+            return False
+        
+        print(f"   📦 Stock entries before: {len(stock_before) if stock_before else 0}")
+        print(f"   💰 Sales before: {len(sales_before) if sales_before else 0}")
+        
+        # Show current stock state for Boisson if it exists
+        boisson_stock_before = None
+        for stock in stock_before:
+            if stock.get("product_name") == "Boisson":
+                boisson_stock_before = stock
+                print(f"   🥤 Boisson before reset: ventes={stock.get('ventes', 0)}, stock_final={stock.get('stock_final', 0)}")
+                break
+        
+        # Step 2: Test the reset endpoint
+        print("\n🔄 Step 2: Testing reset endpoint...")
+        reset_success, reset_response = self.run_test("POST /api/stock/reset", "POST", "stock/reset", 200)
+        
+        if not reset_success:
+            self.log_test("Reset Endpoint", False, "Reset endpoint failed")
+            return False
+        
+        print(f"   ✅ Reset response: {reset_response}")
+        
+        # Step 3: Verify sales are deleted
+        print("\n🗑️ Step 3: Verifying sales deletion...")
+        sales_after_success, sales_after = self.run_test("Get Sales After Reset", "GET", "sales", 200)
+        
+        if sales_after_success:
+            if len(sales_after) == 0:
+                self.log_test("Sales Deletion", True, "All sales successfully deleted")
+            else:
+                self.log_test("Sales Deletion", False, f"Expected 0 sales, found {len(sales_after)}")
+                return False
+        else:
+            self.log_test("Sales Deletion Check", False, "Could not verify sales deletion")
+            return False
+        
+        # Step 4: Verify stock reset
+        print("\n📊 Step 4: Verifying stock reset...")
+        stock_after_success, stock_after = self.run_test("Get Stock After Reset", "GET", "stock", 200)
+        
+        if not stock_after_success:
+            self.log_test("Stock After Reset Check", False, "Could not get stock after reset")
+            return False
+        
+        # Verify all products have ventes = 0
+        all_ventes_zero = True
+        stock_recalculated_correctly = True
+        
+        for stock in stock_after:
+            product_name = stock.get("product_name", "Unknown")
+            ventes = stock.get("ventes", -1)
+            stock_initial = stock.get("stock_initial", 0)
+            achats = stock.get("achats", 0)
+            pertes = stock.get("pertes", 0)
+            stock_final = stock.get("stock_final", 0)
+            
+            # Check ventes is 0
+            if ventes != 0:
+                all_ventes_zero = False
+                self.log_test(f"Ventes Reset for {product_name}", False, f"Expected ventes=0, got {ventes}")
+            
+            # Check stock_final calculation
+            expected_stock_final = stock_initial + achats - 0 - pertes  # ventes should be 0 after reset
+            if stock_final != expected_stock_final:
+                stock_recalculated_correctly = False
+                self.log_test(f"Stock Calculation for {product_name}", False, 
+                            f"Expected stock_final={expected_stock_final} (initial:{stock_initial} + achats:{achats} - ventes:0 - pertes:{pertes}), got {stock_final}")
+            
+            # Special check for Boisson
+            if product_name == "Boisson":
+                print(f"   🥤 Boisson after reset: ventes={ventes}, stock_final={stock_final}")
+                if boisson_stock_before:
+                    print(f"      Before: ventes={boisson_stock_before.get('ventes', 0)}, stock_final={boisson_stock_before.get('stock_final', 0)}")
+                    print(f"      Expected: ventes=0, stock_final={stock_initial + achats - pertes}")
+        
+        if all_ventes_zero:
+            self.log_test("All Ventes Reset to Zero", True, "All products have ventes=0")
+        
+        if stock_recalculated_correctly:
+            self.log_test("Stock Final Recalculation", True, "All stock_final values correctly recalculated")
+        
+        # Step 5: Verify preserved values
+        print("\n🔒 Step 5: Verifying preserved values...")
+        preserved_correctly = True
+        
+        for i, stock_after_item in enumerate(stock_after):
+            # Find corresponding before item
+            stock_before_item = None
+            for stock_before_item_candidate in stock_before:
+                if stock_before_item_candidate.get("product_id") == stock_after_item.get("product_id"):
+                    stock_before_item = stock_before_item_candidate
+                    break
+            
+            if stock_before_item:
+                product_name = stock_after_item.get("product_name", "Unknown")
+                
+                # Check that stock_initial, achats, pertes are preserved
+                for field in ["stock_initial", "achats", "pertes"]:
+                    before_val = stock_before_item.get(field, 0)
+                    after_val = stock_after_item.get(field, 0)
+                    if before_val != after_val:
+                        preserved_correctly = False
+                        self.log_test(f"Preserve {field} for {product_name}", False, 
+                                    f"Expected {field}={before_val}, got {after_val}")
+        
+        if preserved_correctly:
+            self.log_test("Values Preservation", True, "stock_initial, achats, and pertes correctly preserved")
+        
+        # Overall reset test result
+        overall_success = (reset_success and all_ventes_zero and 
+                          stock_recalculated_correctly and preserved_correctly and 
+                          len(sales_after) == 0)
+        
+        self.log_test("OVERALL RESET FUNCTIONALITY", overall_success, 
+                     "Reset endpoint working correctly" if overall_success else "Reset functionality has issues")
+        
+        return overall_success
+
 def main():
     print("🧪 Starting Natanjou Buvette API Tests - NEW FEATURES")
     print("=" * 60)
