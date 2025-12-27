@@ -120,7 +120,6 @@ async def create_product(product: ProductCreate):
     await db.products.insert_one(doc)
     
     # Initialize stock entry for new product
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     stock_entry = StockEntry(
         product_id=product_obj.id,
         product_name=product_obj.name,
@@ -129,7 +128,7 @@ async def create_product(product: ProductCreate):
         ventes=0,
         pertes=0,
         stock_final=0,
-        date=today
+        date="permanent"
     )
     await db.stock.insert_one(stock_entry.model_dump())
     
