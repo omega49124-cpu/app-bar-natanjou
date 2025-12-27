@@ -380,7 +380,16 @@ export const StockTable = () => {
             data-testid="export-stock-csv-btn"
           >
             <FileSpreadsheet className="w-4 h-4 mr-2" />
-            Export CSV
+            CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={exportPDF}
+            className="border-2 border-primary text-primary hover:bg-primary hover:text-white"
+            data-testid="export-stock-pdf-btn"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            PDF
           </Button>
           <Button
             onClick={handlePrint}
