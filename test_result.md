@@ -175,6 +175,18 @@ frontend:
         - agent: "testing"
         - comment: "✅ PASSED - Complete reset functionality UI testing successful. All test scenarios passed: 1) Login with password 'natanjou2024' works, 2) Stock tab navigation works, 3) Reset dialog opens correctly with proper title and warning message, 4) Wrong code 'wrongcode' shows 'Code incorrect' error and keeps dialog open, 5) Cancel button closes dialog properly, 6) Correct code 'natanjou2024' triggers successful reset with success toast, closes dialog, and updates stock table (all ventes = 0). Backend API call to POST /api/stock/reset executed successfully. All data-testid selectors working properly."
 
+  - task: "Administration section UI - backup, restore, factory reset"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AdminSection.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "✅ PASSED - Complete Administration section UI testing successful. All test scenarios passed: 1) Login with password 'natanjou2024' works, 2) Administration tab navigation works (data-testid='tab-admin'), 3) Admin section layout verified (header 'Administration', Sauvegarde card with download button, Restauration card with import button, Zone Dangereuse card with factory reset button), 4) Backup download functionality tested - success toast 'Sauvegarde téléchargée avec succès' appears and API call to GET /api/admin/backup successful (Status: 200), 5) Factory reset dialog opens correctly with title 'Remise à zéro générale' and warning list, 6) Wrong code validation works - 'wrongcode' shows 'Code incorrect' error and keeps dialog open, 7) Cancel button closes dialog properly, 8) Complete factory reset flow tested - correct code 'natanjou2024' triggers successful API call to POST /api/admin/factory-reset (Status: 200), page reloads, and all 4 default products (Boisson, Glace, Café, Vin) are created with stock values at 0. All data-testid selectors working properly. Administration UI is fully functional."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
