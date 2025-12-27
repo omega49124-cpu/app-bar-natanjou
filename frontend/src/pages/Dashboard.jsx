@@ -221,6 +221,10 @@ export default function Dashboard({ onLogout }) {
           <TabsContent value="produits" className="animate-fade-in">
             <ProductsManager />
           </TabsContent>
+
+          <TabsContent value="admin" className="animate-fade-in">
+            <AdminSection />
+          </TabsContent>
         </Tabs>
       </div>
 
