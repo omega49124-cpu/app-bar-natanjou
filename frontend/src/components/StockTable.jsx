@@ -20,8 +20,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Printer, RefreshCw, Save, FileSpreadsheet, Calculator, RotateCcw, AlertTriangle } from "lucide-react";
+import { Printer, RefreshCw, Save, FileSpreadsheet, Calculator, RotateCcw, AlertTriangle, FileText } from "lucide-react";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export const StockTable = () => {
   const [stock, setStock] = useState([]);
