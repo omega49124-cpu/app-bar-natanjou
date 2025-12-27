@@ -215,7 +215,7 @@ export default function Dashboard({ onLogout }) {
           </TabsContent>
 
           <TabsContent value="historique" className="animate-fade-in">
-            <SalesHistory />
+            <SalesHistory onSaleChange={fetchStats} />
           </TabsContent>
 
           <TabsContent value="produits" className="animate-fade-in">
