@@ -343,6 +343,8 @@ export const AdminSection = () => {
                   setShowRestoreDialog(false);
                   setRestoreData(null);
                   setRestoreFileName("");
+                  setRestoreCode("");
+                  setRestoreError("");
                 }}
                 className="flex-1 border-2"
                 data-testid="cancel-restore-btn"
