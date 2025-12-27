@@ -123,15 +123,18 @@ backend:
 frontend:
   - task: "Reset button with confirmation dialog"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/StockTable.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Dialog opens with security code input. Shows error 'Code incorrect' for wrong code. Calls /api/stock/reset when code 'natanjou2024' is entered."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ PASSED - Complete reset functionality UI testing successful. All test scenarios passed: 1) Login with password 'natanjou2024' works, 2) Stock tab navigation works, 3) Reset dialog opens correctly with proper title and warning message, 4) Wrong code 'wrongcode' shows 'Code incorrect' error and keeps dialog open, 5) Cancel button closes dialog properly, 6) Correct code 'natanjou2024' triggers successful reset with success toast, closes dialog, and updates stock table (all ventes = 0). Backend API call to POST /api/stock/reset executed successfully. All data-testid selectors working properly."
 
 metadata:
   created_by: "main_agent"
