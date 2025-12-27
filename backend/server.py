@@ -335,15 +335,16 @@ async def create_sale(sale: SaleCreate):
     
     await db.sales.insert_one(sale_obj.model_dump())
     
-    # Update stock ventes
-    stock = await db.stock.find_one({"product_id": sale.product_id}, {"_id": 0})
-    if stock:
-        new_ventes = stock["ventes"] + sale.quantity
-        stock_final = stock["stock_initial"] + stock["achats"] - new_ventes - stock["pertes"]
-        await db.stock.update_one(
-            {"product_id": sale.product_id},
-            {"$set": {"ventes": new_ventes, "stock_final": stock_final}}
-        )
+    # Update stock ventes only if not skipped (skip when stock is manually edited)
+    if not sale.skip_stock_update:
+        stock = await db.stock.find_one({"product_id": sale.product_id}, {"_id": 0})
+        if stock:
+            new_ventes = stock["ventes"] + sale.quantity
+            stock_final = stock["stock_initial"] + stock["achats"] - new_ventes - stock["pertes"]
+            await db.stock.update_one(
+                {"product_id": sale.product_id},
+                {"$set": {"ventes": new_ventes, "stock_final": stock_final}}
+            )
     
     return sale_obj
 
