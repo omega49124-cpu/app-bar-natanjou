@@ -140,12 +140,13 @@ export const StockTable = () => {
         const product = productsRes.data.find(p => p.id === productId);
         
         if (product) {
-          // Create a sale record for the increase
+          // Create a sale record for the increase (skip_stock_update because we're updating stock manually)
           await axios.post(`${API}/sales`, {
             product_id: productId,
             quantity: ventesIncrease,
+            skip_stock_update: true,
           });
-          toast.success(`${ventesIncrease} vente(s) ajoutée(s) au chiffre d'affaires`);
+          toast.success(`${ventesIncrease} vente(s) de ${editValues._productName} ajoutée(s) au chiffre d'affaires`);
         }
       }
       
