@@ -229,7 +229,7 @@ async def recalculate_stock():
     updated_count = 0
     for product in products:
         product_id = product["id"]
-        stock = await db.stock.find_one({"product_id": product_id, "date": today}, {"_id": 0})
+        stock = await db.stock.find_one({"product_id": product_id}, {"_id": 0})
         
         if stock:
             # Get actual ventes from sales
@@ -239,45 +239,34 @@ async def recalculate_stock():
             stock_final = stock["stock_initial"] + stock["achats"] - actual_ventes - stock["pertes"]
             
             await db.stock.update_one(
-                {"product_id": product_id, "date": today},
+                {"product_id": product_id},
                 {"$set": {"ventes": actual_ventes, "stock_final": stock_final}}
             )
             updated_count += 1
     
-    return {"message": f"Stock recalculé pour {updated_count} produits", "date": today}
+    return {"message": f"Stock recalculé pour {updated_count} produits"}
 
 @api_router.post("/stock/reset")
 async def reset_daily_data():
-    """Reset all daily data: delete sales, refunds, and reset stock ventes"""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    
-    # Delete today's sales
-    sales_result = await db.sales.delete_many({"timestamp": {"$regex": f"^{today}"}})
-    
-    # Delete today's refunds
-    refunds_result = await db.refunds.delete_many({"timestamp": {"$regex": f"^{today}"}})
-    
+    """Reset ventes and recalculate stock - keeps stock_initial and achats"""
     # Reset ventes to 0 for all products and recalculate stock_final
     products = await db.products.find({}, {"_id": 0}).to_list(100)
     for product in products:
-        stock = await db.stock.find_one({"product_id": product["id"], "date": today}, {"_id": 0})
+        stock = await db.stock.find_one({"product_id": product["id"]}, {"_id": 0})
         if stock:
             stock_final = stock["stock_initial"] + stock["achats"] - 0 - stock["pertes"]
             await db.stock.update_one(
-                {"product_id": product["id"], "date": today},
+                {"product_id": product["id"]},
                 {"$set": {"ventes": 0, "stock_final": stock_final}}
             )
     
+    # Delete all sales
+    sales_result = await db.sales.delete_many({})
+    
     return {
-        "message": "Données du jour réinitialisées",
-        "sales_deleted": sales_result.deleted_count,
-        "refunds_deleted": refunds_result.deleted_count
+        "message": "Données réinitialisées",
+        "sales_deleted": sales_result.deleted_count
     }
-    for sale in sales:
-        product_id = sale["product_id"]
-        if product_id not in sales_by_product:
-            sales_by_product[product_id] = 0
-        sales_by_product[product_id] += sale["quantity"]
     
     # Update stock for each product
     updated_count = 0
