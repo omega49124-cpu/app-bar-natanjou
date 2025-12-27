@@ -353,7 +353,7 @@ export const AdminSection = () => {
               </Button>
               <Button
                 onClick={handleRestoreConfirm}
-                disabled={loading}
+                disabled={!restoreCode || loading}
                 className="flex-1 bg-secondary text-secondary-foreground"
                 data-testid="confirm-restore-btn"
               >
