@@ -210,7 +210,7 @@ async def update_stock(product_id: str, update: StockUpdate):
 
 @api_router.post("/stock/recalculate")
 async def recalculate_stock():
-    """Recalculate ventes from actual sales and update stock_final"""
+    """Recalculate ventes from actual sales and update stock_final - Optimized with bulk operations"""
     # Get all products
     products = await db.products.find({}, {"_id": 0}).to_list(100)
     
@@ -225,11 +225,15 @@ async def recalculate_stock():
             sales_by_product[product_id] = 0
         sales_by_product[product_id] += sale["quantity"]
     
-    # Update stock for each product
-    updated_count = 0
+    # Fetch all stock entries at once (optimized - single query)
+    stock_items = await db.stock.find({}, {"_id": 0}).to_list(1000)
+    stock_by_product = {s["product_id"]: s for s in stock_items}
+    
+    # Prepare bulk updates (optimized - batch all updates)
+    bulk_updates = []
     for product in products:
         product_id = product["id"]
-        stock = await db.stock.find_one({"product_id": product_id}, {"_id": 0})
+        stock = stock_by_product.get(product_id)
         
         if stock:
             # Get actual ventes from sales
@@ -238,27 +242,41 @@ async def recalculate_stock():
             # Recalculate stock_final
             stock_final = stock["stock_initial"] + stock["achats"] - actual_ventes - stock["pertes"]
             
-            await db.stock.update_one(
-                {"product_id": product_id},
-                {"$set": {"ventes": actual_ventes, "stock_final": stock_final}}
+            bulk_updates.append(
+                UpdateOne(
+                    {"product_id": product_id},
+                    {"$set": {"ventes": actual_ventes, "stock_final": stock_final}}
+                )
             )
-            updated_count += 1
+    
+    # Execute all updates in one operation
+    updated_count = 0
+    if bulk_updates:
+        result = await db.stock.bulk_write(bulk_updates)
+        updated_count = result.modified_count
     
     return {"message": f"Stock recalculé pour {updated_count} produits"}
 
 @api_router.post("/stock/reset")
 async def reset_daily_data():
-    """Reset ventes and recalculate stock - keeps stock_initial and achats"""
-    # Reset ventes to 0 for all products and recalculate stock_final
-    products = await db.products.find({}, {"_id": 0}).to_list(100)
-    for product in products:
-        stock = await db.stock.find_one({"product_id": product["id"]}, {"_id": 0})
-        if stock:
-            stock_final = stock["stock_initial"] + stock["achats"] - 0 - stock["pertes"]
-            await db.stock.update_one(
-                {"product_id": product["id"]},
+    """Reset ventes and recalculate stock - keeps stock_initial and achats - Optimized with bulk operations"""
+    # Fetch all stock entries at once
+    stock_items = await db.stock.find({}, {"_id": 0}).to_list(1000)
+    
+    # Prepare bulk updates
+    bulk_updates = []
+    for stock in stock_items:
+        stock_final = stock["stock_initial"] + stock["achats"] - 0 - stock["pertes"]
+        bulk_updates.append(
+            UpdateOne(
+                {"product_id": stock["product_id"]},
                 {"$set": {"ventes": 0, "stock_final": stock_final}}
             )
+        )
+    
+    # Execute all updates in one operation
+    if bulk_updates:
+        await db.stock.bulk_write(bulk_updates)
     
     # Delete all sales
     sales_result = await db.sales.delete_many({})
@@ -267,27 +285,6 @@ async def reset_daily_data():
         "message": "Données réinitialisées",
         "sales_deleted": sales_result.deleted_count
     }
-    
-    # Update stock for each product
-    updated_count = 0
-    for product in products:
-        product_id = product["id"]
-        stock = await db.stock.find_one({"product_id": product_id, "date": today}, {"_id": 0})
-        
-        if stock:
-            # Get actual ventes from sales
-            actual_ventes = sales_by_product.get(product_id, 0)
-            
-            # Recalculate stock_final
-            stock_final = stock["stock_initial"] + stock["achats"] - actual_ventes - stock["pertes"]
-            
-            await db.stock.update_one(
-                {"product_id": product_id, "date": today},
-                {"$set": {"ventes": actual_ventes, "stock_final": stock_final}}
-            )
-            updated_count += 1
-    
-    return {"message": f"Stock recalculé pour {updated_count} produits", "date": today}
 
 # ===== SALES ROUTES =====
 
