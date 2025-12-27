@@ -312,6 +312,98 @@ export const RefundSection = ({ onRefundComplete }) => {
     }, 250);
   };
 
+  const exportRefundsPDF = () => {
+    if (refunds.length === 0) {
+      toast.error("Aucun remboursement a exporter");
+      return;
+    }
+
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("Association Natanjou", 105, 20, { align: "center" });
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Historique des Remboursements", 105, 30, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.text(`Date: ${new Date().toLocaleDateString("fr-FR")}`, 105, 38, { align: "center" });
+    
+    // Sort refunds by date (most recent first)
+    const sortedRefunds = [...refunds].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    
+    // Table data
+    const tableData = sortedRefunds.map((refund) => {
+      const date = new Date(refund.timestamp);
+      const itemsList = refund.items
+        .map((item) => `${item.quantity}x ${item.product_name}`)
+        .join(", ");
+      return [
+        refund.receipt_number,
+        date.toLocaleDateString("fr-FR"),
+        refund.member_name,
+        itemsList,
+        `${refund.total_amount.toFixed(2)} EUR`,
+      ];
+    });
+    
+    // Calculate total
+    const totalRefunds = refunds.reduce((sum, r) => sum + r.total_amount, 0);
+    
+    // Generate table
+    autoTable(doc, {
+      startY: 45,
+      head: [["N° Recu", "Date", "Adherent", "Articles", "Montant"]],
+      body: tableData,
+      foot: [["", "", "", "TOTAL", `${totalRefunds.toFixed(2)} EUR`]],
+      theme: "grid",
+      headStyles: {
+        fillColor: [194, 120, 92],
+        textColor: 255,
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      footStyles: {
+        fillColor: [240, 240, 240],
+        textColor: 0,
+        fontStyle: "bold",
+      },
+      columnStyles: {
+        0: { cellWidth: 35, fontSize: 8 },
+        1: { cellWidth: 25, halign: "center" },
+        2: { cellWidth: 35 },
+        3: { cellWidth: 55, fontSize: 8 },
+        4: { cellWidth: 25, halign: "right", fontStyle: "bold" },
+      },
+      alternateRowStyles: {
+        fillColor: [252, 248, 245],
+      },
+    });
+    
+    // Footer
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setFontSize(8);
+    doc.setTextColor(128);
+    doc.text(
+      `Genere le ${new Date().toLocaleString("fr-FR")} - ${refunds.length} remboursement(s)`,
+      105,
+      pageHeight - 10,
+      { align: "center" }
+    );
+    
+    // Save
+    doc.save(`remboursements_natanjou_${new Date().toISOString().split("T")[0]}.pdf`);
+    toast.success("Export PDF telecharge");
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
