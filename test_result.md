@@ -107,15 +107,18 @@ user_problem_statement: Application de gestion de buvette pour l'association Nat
 backend:
   - task: "Reset stock endpoint - POST /api/stock/reset"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Endpoint exists at /api/stock/reset. It deletes all sales, resets ventes to 0 for all products, and recalculates stock_final. Preserves stock_initial, achats, and pertes."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ PASSED - Reset endpoint working perfectly. Tested with 2 existing sales (4 total ventes for Boisson). After reset: all sales deleted (0 remaining), all products have ventes=0, stock_final correctly recalculated (Boisson: 64→68), stock_initial/achats/pertes preserved. Response: {'message': 'Données réinitialisées', 'sales_deleted': 2}"
 
 frontend:
   - task: "Reset button with confirmation dialog"
