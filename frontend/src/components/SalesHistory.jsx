@@ -62,9 +62,13 @@ export const SalesHistory = ({ onSaleChange }) => {
 
   const deleteSale = async (saleId) => {
     try {
-      await axios.delete(`${API}/sales/${saleId}`);
-      toast.success("Vente supprimée");
+      const response = await axios.delete(`${API}/sales/${saleId}`);
+      toast.success(`Vente annulée - ${response.data.quantity_restored} article(s) remis en stock`);
       fetchData();
+      // Notify parent to refresh stats
+      if (onSaleChange) {
+        onSaleChange();
+      }
     } catch (error) {
       console.error("Error deleting sale:", error);
       toast.error("Erreur lors de la suppression");
