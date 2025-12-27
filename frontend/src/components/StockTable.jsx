@@ -262,6 +262,77 @@ export const StockTable = () => {
     toast.success("Export CSV téléchargé");
   };
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("Association Natanjou", 105, 20, { align: "center" });
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Tableau de Stock", 105, 30, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.text(`Date: ${new Date().toLocaleDateString("fr-FR")}`, 105, 38, { align: "center" });
+    
+    // Table data
+    const tableData = stock.map((item) => [
+      item.product_name,
+      item.stock_initial.toString(),
+      `+${item.achats}`,
+      `-${item.ventes}`,
+      `-${item.pertes}`,
+      item.stock_final.toString(),
+    ]);
+    
+    // Generate table
+    doc.autoTable({
+      startY: 45,
+      head: [["Produit", "Stock Initial", "Achats", "Ventes", "Pertes", "Stock Final"]],
+      body: tableData,
+      theme: "grid",
+      headStyles: {
+        fillColor: [66, 139, 130],
+        textColor: 255,
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        halign: "center",
+      },
+      columnStyles: {
+        0: { halign: "left", fontStyle: "bold" },
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      margin: { top: 45 },
+    });
+    
+    // Footer
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setFontSize(8);
+    doc.setTextColor(128);
+    doc.text(
+      `Généré le ${new Date().toLocaleString("fr-FR")}`,
+      105,
+      pageHeight - 10,
+      { align: "center" }
+    );
+    doc.text(
+      "Stock Final = Stock Initial + Achats - Ventes - Pertes",
+      105,
+      pageHeight - 15,
+      { align: "center" }
+    );
+    
+    // Save
+    doc.save(`stock_natanjou_${new Date().toISOString().split("T")[0]}.pdf`);
+    toast.success("Export PDF téléchargé");
+  };
+
   if (loading) {
     return (
       <Card className="bg-card border-2 border-border">
