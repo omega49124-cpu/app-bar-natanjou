@@ -155,10 +155,9 @@ async def get_stock():
 async def init_stock():
     """Initialize stock entries for all products"""
     products = await db.products.find({}, {"_id": 0}).to_list(100)
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     
     for product in products:
-        existing = await db.stock.find_one({"product_id": product["id"], "date": today})
+        existing = await db.stock.find_one({"product_id": product["id"]})
         if not existing:
             stock_entry = StockEntry(
                 product_id=product["id"],
@@ -168,7 +167,7 @@ async def init_stock():
                 ventes=0,
                 pertes=0,
                 stock_final=0,
-                date=today
+                date="permanent"
             )
             await db.stock.insert_one(stock_entry.model_dump())
     
