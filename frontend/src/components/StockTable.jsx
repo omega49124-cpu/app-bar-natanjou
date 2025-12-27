@@ -104,6 +104,8 @@ export const StockTable = () => {
       ventes: item.ventes,
       pertes: item.pertes,
       stock_final: item.stock_final,
+      _originalVentes: item.ventes, // Store original value to detect changes
+      _productName: item.product_name,
     });
   };
 
@@ -122,9 +124,30 @@ export const StockTable = () => {
         (editValues.pertes || 0);
       
       const dataToSend = {
-        ...editValues,
+        stock_initial: editValues.stock_initial,
+        achats: editValues.achats,
+        ventes: editValues.ventes,
+        pertes: editValues.pertes,
         stock_final: calculatedStockFinal
       };
+      
+      // Check if ventes increased - if so, create a sale record
+      const ventesIncrease = (editValues.ventes || 0) - (editValues._originalVentes || 0);
+      
+      if (ventesIncrease > 0) {
+        // Get product info to get the price
+        const productsRes = await axios.get(`${API}/products`);
+        const product = productsRes.data.find(p => p.id === productId);
+        
+        if (product) {
+          // Create a sale record for the increase
+          await axios.post(`${API}/sales`, {
+            product_id: productId,
+            quantity: ventesIncrease,
+          });
+          toast.success(`${ventesIncrease} vente(s) ajoutée(s) au chiffre d'affaires`);
+        }
+      }
       
       await axios.put(`${API}/stock/${productId}`, dataToSend);
       toast.success("Stock mis à jour");
