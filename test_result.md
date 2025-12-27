@@ -119,6 +119,45 @@ backend:
         - working: true
         - agent: "testing"
         - comment: "✅ PASSED - Reset endpoint working perfectly. Tested with 2 existing sales (4 total ventes for Boisson). After reset: all sales deleted (0 remaining), all products have ventes=0, stock_final correctly recalculated (Boisson: 64→68), stock_initial/achats/pertes preserved. Response: {'message': 'Données réinitialisées', 'sales_deleted': 2}"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ PASSED - Reset endpoint retested and confirmed working. No sales existed before reset, all ventes remain 0, stock_final calculations correct. Response: {'message': 'Données réinitialisées', 'sales_deleted': 0}. All preservation and calculation logic verified."
+
+  - task: "Admin backup endpoint - GET /api/admin/backup"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "✅ PASSED - Backup endpoint working perfectly. Returns JSON with correct structure: {version, timestamp, data: {products, stock, sales, refunds}}. Tested with 4 products, 4 stock entries, 1 sale, 0 refunds. All collections included in backup."
+
+  - task: "Admin restore endpoint - POST /api/admin/restore"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "✅ PASSED - Restore endpoint working perfectly. Successfully restores from backup JSON. Returns correct response: {message: 'Données restaurées avec succès', restored: {products: 4, stock: 4, sales: 1, refunds: 0}}. All collection counts match backup data."
+
+  - task: "Admin factory reset endpoint - POST /api/admin/factory-reset"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "✅ PASSED - Factory reset endpoint working perfectly. Deletes ALL data and recreates exactly 4 default products: Boisson (1€), Glace (1€), Café (0.50€), Vin (7€). Creates stock entries with all values at 0 (stock_initial=0, achats=0, ventes=0, pertes=0, stock_final=0). Sales and refunds collections are empty. Returns: {message: 'Remise à zéro complète effectuée', products_created: 4}."
 
 frontend:
   - task: "Reset button with confirmation dialog"
