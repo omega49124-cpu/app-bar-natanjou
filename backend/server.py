@@ -176,9 +176,8 @@ async def init_stock():
 
 @api_router.put("/stock/{product_id}")
 async def update_stock(product_id: str, update: StockUpdate):
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    
-    stock = await db.stock.find_one({"product_id": product_id, "date": today}, {"_id": 0})
+    # Find stock entry (try permanent first, then by date for backwards compatibility)
+    stock = await db.stock.find_one({"product_id": product_id}, {"_id": 0})
     if not stock:
         raise HTTPException(status_code=404, detail="Stock entry not found")
     
@@ -202,26 +201,21 @@ async def update_stock(product_id: str, update: StockUpdate):
         update_data["stock_final"] = stock_final
     
     await db.stock.update_one(
-        {"product_id": product_id, "date": today},
+        {"product_id": product_id},
         {"$set": update_data}
     )
     
-    updated = await db.stock.find_one({"product_id": product_id, "date": today}, {"_id": 0})
+    updated = await db.stock.find_one({"product_id": product_id}, {"_id": 0})
     return updated
 
 @api_router.post("/stock/recalculate")
 async def recalculate_stock():
     """Recalculate ventes from actual sales and update stock_final"""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    
     # Get all products
     products = await db.products.find({}, {"_id": 0}).to_list(100)
     
-    # Get today's sales
-    sales = await db.sales.find(
-        {"timestamp": {"$regex": f"^{today}"}},
-        {"_id": 0}
-    ).to_list(1000)
+    # Get ALL sales (not just today's)
+    sales = await db.sales.find({}, {"_id": 0}).to_list(10000)
     
     # Calculate total sales per product
     sales_by_product = {}
