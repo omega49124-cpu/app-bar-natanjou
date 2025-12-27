@@ -310,11 +310,33 @@ async def delete_all_sales():
 
 @api_router.delete("/sales/{sale_id}")
 async def delete_sale(sale_id: str):
-    """Delete a single sale"""
+    """Delete a single sale and restore stock"""
+    # First, get the sale to know the quantity and product
+    sale = await db.sales.find_one({"id": sale_id}, {"_id": 0})
+    if not sale:
+        raise HTTPException(status_code=404, detail="Sale not found")
+    
+    # Delete the sale
     result = await db.sales.delete_one({"id": sale_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Sale not found")
-    return {"message": "Vente supprimée"}
+    
+    # Restore the stock (decrease ventes, increase stock_final)
+    stock = await db.stock.find_one({"product_id": sale["product_id"]}, {"_id": 0})
+    if stock:
+        new_ventes = max(0, stock["ventes"] - sale["quantity"])  # Don't go below 0
+        stock_final = stock["stock_initial"] + stock["achats"] - new_ventes - stock["pertes"]
+        await db.stock.update_one(
+            {"product_id": sale["product_id"]},
+            {"$set": {"ventes": new_ventes, "stock_final": stock_final}}
+        )
+    
+    return {
+        "message": "Vente annulée",
+        "product_name": sale.get("product_name", ""),
+        "quantity_restored": sale["quantity"],
+        "amount_refunded": sale.get("total", 0)
+    }
 
 @api_router.post("/sales", response_model=Sale)
 async def create_sale(sale: SaleCreate):
