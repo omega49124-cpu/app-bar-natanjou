@@ -287,8 +287,8 @@ export const StockTable = () => {
       item.stock_final.toString(),
     ]);
     
-    // Generate table
-    doc.autoTable({
+    // Generate table using autoTable
+    autoTable(doc, {
       startY: 45,
       head: [["Produit", "Stock Initial", "Achats", "Ventes", "Pertes", "Stock Final"]],
       body: tableData,
@@ -316,7 +316,7 @@ export const StockTable = () => {
     doc.setFontSize(8);
     doc.setTextColor(128);
     doc.text(
-      `Généré le ${new Date().toLocaleString("fr-FR")}`,
+      `Genere le ${new Date().toLocaleString("fr-FR")}`,
       105,
       pageHeight - 10,
       { align: "center" }
@@ -330,7 +330,7 @@ export const StockTable = () => {
     
     // Save
     doc.save(`stock_natanjou_${new Date().toISOString().split("T")[0]}.pdf`);
-    toast.success("Export PDF téléchargé");
+    toast.success("Export PDF telecharge");
   };
 
   if (loading) {
