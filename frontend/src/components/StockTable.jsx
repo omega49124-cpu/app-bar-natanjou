@@ -379,20 +379,22 @@ export const StockTable = ({ onStockChange, readOnly = false }) => {
           Tableau de Stock
         </CardTitle>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={recalculateStock}
-            disabled={recalculating}
-            className="border-2 border-accent text-accent hover:bg-accent hover:text-white"
-            data-testid="recalculate-stock-btn"
-          >
-            {recalculating ? (
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Calculator className="w-4 h-4 mr-2" />
-            )}
-            Recalculer
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="outline"
+              onClick={recalculateStock}
+              disabled={recalculating}
+              className="border-2 border-accent text-accent hover:bg-accent hover:text-white"
+              data-testid="recalculate-stock-btn"
+            >
+              {recalculating ? (
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Calculator className="w-4 h-4 mr-2" />
+              )}
+              Recalculer
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={fetchStock}
@@ -428,15 +430,17 @@ export const StockTable = ({ onStockChange, readOnly = false }) => {
             <Printer className="w-4 h-4 mr-2" />
             Imprimer
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleResetClick}
-            className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
-            data-testid="reset-stock-btn"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Réinitialiser
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="outline"
+              onClick={handleResetClick}
+              className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
+              data-testid="reset-stock-btn"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Réinitialiser
+            </Button>
+          )}
         </div>
       </CardHeader>
 
