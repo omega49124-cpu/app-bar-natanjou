@@ -30,10 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Package, Image } from "lucide-react";
+import { Plus, Trash2, Package, Image, Eye } from "lucide-react";
 import { toast } from "sonner";
 
-export const ProductsManager = () => {
+export const ProductsManager = ({ readOnly = false }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
