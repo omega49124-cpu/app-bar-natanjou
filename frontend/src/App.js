@@ -13,18 +13,23 @@ export const API = `${BACKEND_URL}/api`;
 const checkAuth = () => {
   const auth = localStorage.getItem("natanjou_auth");
   const authTime = localStorage.getItem("natanjou_auth_time");
+  const role = localStorage.getItem("natanjou_role");
   
   if (auth === "true" && authTime) {
     const elapsed = Date.now() - parseInt(authTime);
     const hours24 = 24 * 60 * 60 * 1000;
-    return elapsed < hours24;
+    if (elapsed < hours24) {
+      return { authenticated: true, role: role || "admin" };
+    }
   }
-  return false;
+  return { authenticated: false, role: null };
 };
 
 function App() {
   const [initialized, setInitialized] = useState(false);
-  const [authenticated, setAuthenticated] = useState(checkAuth());
+  const authState = checkAuth();
+  const [authenticated, setAuthenticated] = useState(authState.authenticated);
+  const [userRole, setUserRole] = useState(authState.role);
 
   useEffect(() => {
     const initApp = async () => {
@@ -50,14 +55,17 @@ function App() {
     initApp();
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = (role) => {
     setAuthenticated(true);
+    setUserRole(role);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("natanjou_auth");
     localStorage.removeItem("natanjou_auth_time");
+    localStorage.removeItem("natanjou_role");
     setAuthenticated(false);
+    setUserRole(null);
   };
 
   if (!initialized) {
@@ -84,8 +92,8 @@ function App() {
     <div className="min-h-screen bg-background grain-texture">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard onLogout={handleLogout} />} />
-          <Route path="*" element={<Dashboard onLogout={handleLogout} />} />
+          <Route path="/" element={<Dashboard onLogout={handleLogout} userRole={userRole} />} />
+          <Route path="*" element={<Dashboard onLogout={handleLogout} userRole={userRole} />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" richColors />
