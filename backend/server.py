@@ -33,13 +33,16 @@ async def health_check():
 
 # ===== AUTH ENDPOINT =====
 APP_PASSWORD = os.environ.get('APP_PASSWORD', 'natanjou2024')
+VIEWER_PASSWORD = os.environ.get('VIEWER_PASSWORD', '2026')
 
 @api_router.post("/auth/verify")
 async def verify_password(data: dict):
-    """Verify access password"""
+    """Verify access password - returns access level (admin or viewer)"""
     password = data.get("password", "")
     if password == APP_PASSWORD:
-        return {"success": True, "message": "Accès autorisé"}
+        return {"success": True, "message": "Accès administrateur", "role": "admin"}
+    if password == VIEWER_PASSWORD:
+        return {"success": True, "message": "Accès consultation", "role": "viewer"}
     raise HTTPException(status_code=401, detail="Mot de passe incorrect")
 
 # ===== MODELS =====
