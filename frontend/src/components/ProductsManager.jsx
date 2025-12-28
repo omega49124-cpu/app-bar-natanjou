@@ -120,34 +120,36 @@ export const ProductsManager = ({ readOnly = false }) => {
   return (
     <Card className="bg-card border-2 border-border" data-testid="products-manager">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="font-serif text-xl font-bold">
+        <CardTitle className="font-serif text-xl font-bold flex items-center gap-2">
           Gestion des Produits
+          {readOnly && <Eye className="w-4 h-4 text-yellow-600" />}
         </CardTitle>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button
-              className="bg-secondary text-secondary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] transition-all"
-              data-testid="add-product-btn"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter un produit
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md" data-testid="add-product-dialog">
-            <DialogHeader>
-              <DialogTitle className="font-serif text-xl">
-                Nouveau Produit
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="productName">Nom du produit</Label>
-                <Input
-                  id="productName"
-                  value={newProduct.name}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, name: e.target.value })
-                  }
+        {!readOnly && (
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button
+                className="bg-secondary text-secondary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] transition-all"
+                data-testid="add-product-btn"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter un produit
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md" data-testid="add-product-dialog">
+              <DialogHeader>
+                <DialogTitle className="font-serif text-xl">
+                  Nouveau Produit
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="productName">Nom du produit</Label>
+                  <Input
+                    id="productName"
+                    value={newProduct.name}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, name: e.target.value })
+                    }
                   placeholder="Ex: Coca-Cola"
                   className="border-2"
                   data-testid="product-name-input"
