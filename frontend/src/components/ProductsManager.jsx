@@ -214,8 +214,15 @@ export const ProductsManager = ({ readOnly = false }) => {
             </div>
           </DialogContent>
         </Dialog>
+        )}
       </CardHeader>
       <CardContent>
+        {readOnly && (
+          <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-4 mb-4 text-center">
+            <Eye className="w-5 h-5 mx-auto mb-1 text-yellow-600" />
+            <p className="text-yellow-800 font-medium text-sm">Mode consultation - Modifications désactivées</p>
+          </div>
+        )}
         {products.length === 0 ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
