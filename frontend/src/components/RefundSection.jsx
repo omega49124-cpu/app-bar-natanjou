@@ -570,9 +570,16 @@ export const RefundSection = ({ onRefundComplete }) => {
       {/* History */}
       <Card className="bg-card border-2 border-border" data-testid="refund-history-card">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="font-serif text-xl font-bold">
-            Historique des remboursements
-          </CardTitle>
+          <div>
+            <CardTitle className="font-serif text-xl font-bold">
+              Historique des remboursements
+            </CardTitle>
+            {refunds.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Total permanent : <span className="font-bold text-secondary">{refunds.reduce((sum, r) => sum + r.total_amount, 0).toFixed(2)} €</span> ({refunds.length} remboursement{refunds.length > 1 ? 's' : ''})
+              </p>
+            )}
+          </div>
           <Button
             variant="outline"
             onClick={exportRefundsPDF}
