@@ -416,17 +416,26 @@ export const RefundSection = ({ onRefundComplete, readOnly = false }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Form - Enregistrer un achat à rembourser */}
-      <Card className="bg-card border-2 border-border" data-testid="refund-form-card">
+      <Card className={`bg-card border-2 border-border ${readOnly ? "opacity-60" : ""}`} data-testid="refund-form-card">
         <CardHeader>
           <CardTitle className="font-serif text-xl font-bold flex items-center gap-2">
             <ShoppingBag className="w-5 h-5" />
             Remboursement Facture d'Achat
+            {readOnly && <Eye className="w-4 h-4 text-yellow-600" />}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Enregistrez les achats d'un adhérent pour approvisionner la buvette
+            {readOnly ? "Mode consultation - Formulaire désactivé" : "Enregistrez les achats d'un adhérent pour approvisionner la buvette"}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
+          {readOnly ? (
+            <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-6 text-center">
+              <Eye className="w-8 h-8 mx-auto mb-2 text-yellow-600" />
+              <p className="text-yellow-800 font-medium">Mode consultation</p>
+              <p className="text-yellow-600 text-sm">La création de remboursements est désactivée</p>
+            </div>
+          ) : (
+            <>
           <div className="space-y-2">
             <Label htmlFor="memberName" className="font-sans font-medium">
               Nom de l'adhérent
