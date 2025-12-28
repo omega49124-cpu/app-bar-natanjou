@@ -1,0 +1,58 @@
+# Docker Compose pour Natanjou Buvette
+# Utilisation: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # Base de données MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: natanjou-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - natanjou-network
+
+  # Backend FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: natanjou-backend
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+      - DB_NAME=natanjou_buvette
+      - CORS_ORIGINS=*
+    depends_on:
+      - mongodb
+    networks:
+      - natanjou-network
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: natanjou-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8001
+    depends_on:
+      - backend
+    networks:
+      - natanjou-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  natanjou-network:
+    driver: bridge
