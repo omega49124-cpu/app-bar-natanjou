@@ -96,7 +96,7 @@ export default function Dashboard({ onLogout }) {
 
       {/* Stats Cards */}
       <div className="max-w-7xl mx-auto px-8 py-6 no-print">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card className="bg-card border-2 border-border shadow-sm" data-testid="stat-sales">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2">
