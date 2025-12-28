@@ -60,6 +60,16 @@ export default function Dashboard({ onLogout }) {
             </div>
           </div>
           <div className="flex items-center gap-6">
+            {totalStats && (
+              <div className="text-right border-r border-primary-foreground/20 pr-6">
+                <p className="text-xs uppercase tracking-widest opacity-60">
+                  CA Total (permanent)
+                </p>
+                <p className="font-sans text-2xl font-bold tabular-nums text-yellow-300">
+                  {totalStats.total_revenue.toFixed(2)} €
+                </p>
+              </div>
+            )}
             {stats && (
               <div className="text-right">
                 <p className="text-xs uppercase tracking-widest opacity-60">
