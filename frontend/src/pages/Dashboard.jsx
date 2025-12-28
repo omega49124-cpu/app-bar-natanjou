@@ -4,7 +4,7 @@ import { API } from "@/App";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut, Shield, Trophy } from "lucide-react";
+import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut, Shield, Trophy, Eye } from "lucide-react";
 import CashRegister from "@/components/CashRegister";
 import StockTable from "@/components/StockTable";
 import RefundSection from "@/components/RefundSection";
@@ -13,11 +13,13 @@ import SalesHistory from "@/components/SalesHistory";
 import AdminSection from "@/components/AdminSection";
 import NatanjouLogo from "@/components/NatanjouLogo";
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ onLogout, userRole = "admin" }) {
   const [stats, setStats] = useState(null);
   const [totalStats, setTotalStats] = useState(null);
   const [activeTab, setActiveTab] = useState("caisse");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  const isViewer = userRole === "viewer";
 
   const fetchStats = async () => {
     try {
