@@ -4,10 +4,10 @@ import { API } from "@/App";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Minus, ShoppingBag, Trash2, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Trash2, Check, RefreshCw, AlertTriangle, Eye } from "lucide-react";
 import { toast } from "sonner";
 
-export const CashRegister = ({ onSaleComplete, refreshTrigger }) => {
+export const CashRegister = ({ onSaleComplete, refreshTrigger, readOnly = false }) => {
   const [products, setProducts] = useState([]);
   const [stock, setStock] = useState([]);
   const [cart, setCart] = useState([]);
