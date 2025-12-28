@@ -250,14 +250,14 @@ export const AdminSection = ({ readOnly = false }) => {
       </div>
 
       {/* Factory Reset Section */}
-      <Card className="bg-card border-2 border-destructive/50">
+      <Card className={`bg-card border-2 border-destructive/50 ${readOnly ? "opacity-60" : ""}`}>
         <CardHeader>
           <CardTitle className="font-serif text-lg font-bold flex items-center gap-2 text-destructive">
             <AlertTriangle className="w-5 h-5" />
             Zone Dangereuse
           </CardTitle>
           <CardDescription>
-            Actions irréversibles - Procédez avec précaution
+            {readOnly ? "Désactivé en mode consultation" : "Actions irréversibles - Procédez avec précaution"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -276,8 +276,9 @@ export const AdminSection = ({ readOnly = false }) => {
           </div>
           <Button
             onClick={handleFactoryResetClick}
+            disabled={readOnly}
             variant="outline"
-            className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
+            className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white disabled:opacity-50"
             data-testid="factory-reset-btn"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
