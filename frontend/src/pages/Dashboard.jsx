@@ -256,27 +256,27 @@ export default function Dashboard({ onLogout, userRole = "admin" }) {
           </TabsList>
 
           <TabsContent value="caisse" className="animate-fade-in">
-            <CashRegister onSaleComplete={fetchStats} refreshTrigger={refreshTrigger} />
+            <CashRegister onSaleComplete={fetchStats} refreshTrigger={refreshTrigger} readOnly={isViewer} />
           </TabsContent>
 
           <TabsContent value="stock" className="animate-fade-in">
-            <StockTable onStockChange={fetchStats} />
+            <StockTable onStockChange={fetchStats} readOnly={isViewer} />
           </TabsContent>
 
           <TabsContent value="remboursements" className="animate-fade-in">
-            <RefundSection onRefundComplete={fetchStats} />
+            <RefundSection onRefundComplete={fetchStats} readOnly={isViewer} />
           </TabsContent>
 
           <TabsContent value="historique" className="animate-fade-in">
-            <SalesHistory onSaleChange={fetchStats} />
+            <SalesHistory onSaleChange={fetchStats} readOnly={isViewer} />
           </TabsContent>
 
           <TabsContent value="produits" className="animate-fade-in">
-            <ProductsManager />
+            <ProductsManager readOnly={isViewer} />
           </TabsContent>
 
           <TabsContent value="admin" className="animate-fade-in">
-            <AdminSection />
+            <AdminSection readOnly={isViewer} />
           </TabsContent>
         </Tabs>
       </div>
