@@ -159,6 +159,7 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger, readOnly = false 
       <div className="lg:col-span-2">
         <h2 className="font-serif text-xl font-bold mb-4 text-foreground">
           Produits
+          {readOnly && <span className="ml-2 text-sm font-normal text-yellow-600">(consultation)</span>}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {products.map((product, index) => {
@@ -166,16 +167,17 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger, readOnly = false 
             const inCart = getCartQuantity(product.id);
             const isOutOfStock = availableStock <= 0;
             const remainingStock = availableStock - inCart;
+            const isDisabled = isOutOfStock || readOnly;
             
             return (
               <Card
                 key={product.id}
                 className={`product-card bg-card border-2 overflow-hidden ${
-                  isOutOfStock 
+                  isDisabled 
                     ? "border-destructive/50 opacity-60 cursor-not-allowed" 
                     : "border-border hover:border-secondary cursor-pointer"
                 }`}
-                onClick={() => !isOutOfStock && addToCart(product)}
+                onClick={() => !isDisabled && addToCart(product)}
                 style={{ animationDelay: `${index * 50}ms` }}
                 data-testid={`product-${product.name.toLowerCase()}`}
               >
