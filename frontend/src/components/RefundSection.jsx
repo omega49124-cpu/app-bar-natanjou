@@ -611,7 +611,6 @@ export const RefundSection = ({ onRefundComplete }) => {
                 <TableBody>
                   {refunds
                     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                    .slice(0, 10)
                     .map((refund) => (
                       <TableRow key={refund.id} data-testid={`refund-row-${refund.id}`}>
                         <TableCell className="font-mono text-xs">
