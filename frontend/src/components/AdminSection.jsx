@@ -163,9 +163,10 @@ export const AdminSection = ({ readOnly = false }) => {
           <CardTitle className="font-serif text-xl font-bold flex items-center gap-2">
             <Shield className="w-6 h-6 text-primary" />
             Administration
+            {readOnly && <span className="text-sm font-normal text-yellow-600 ml-2">(consultation)</span>}
           </CardTitle>
           <CardDescription>
-            Gérez les sauvegardes et la configuration de l'application
+            {readOnly ? "Mode consultation - Certaines actions sont désactivées" : "Gérez les sauvegardes et la configuration de l'application"}
           </CardDescription>
         </CardHeader>
       </Card>
