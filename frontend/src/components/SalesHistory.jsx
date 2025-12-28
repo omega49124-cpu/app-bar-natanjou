@@ -34,7 +34,7 @@ import {
 import { Calendar, Download, FileSpreadsheet, Search, Filter, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-export const SalesHistory = ({ onSaleChange }) => {
+export const SalesHistory = ({ onSaleChange, readOnly = false }) => {
   const [sales, setSales] = useState([]);
   const [filteredSales, setFilteredSales] = useState([]);
   const [loading, setLoading] = useState(true);
