@@ -211,14 +211,14 @@ export const AdminSection = ({ readOnly = false }) => {
         </Card>
 
         {/* Restore Card */}
-        <Card className="bg-card border-2 border-border">
+        <Card className={`bg-card border-2 border-border ${readOnly ? "opacity-60" : ""}`}>
           <CardHeader>
             <CardTitle className="font-serif text-lg font-bold flex items-center gap-2">
               <Upload className="w-5 h-5 text-secondary" />
               Restauration
             </CardTitle>
             <CardDescription>
-              Restaurez vos données à partir d'une sauvegarde
+              {readOnly ? "Désactivé en mode consultation" : "Restaurez vos données à partir d'une sauvegarde"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -237,9 +237,9 @@ export const AdminSection = ({ readOnly = false }) => {
             />
             <Button
               onClick={() => fileInputRef.current?.click()}
-              disabled={loading}
+              disabled={loading || readOnly}
               variant="outline"
-              className="w-full border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
+              className="w-full border-2 border-secondary text-secondary hover:bg-secondary hover:text-white disabled:opacity-50"
               data-testid="restore-btn"
             >
               <Upload className="w-4 h-4 mr-2" />
