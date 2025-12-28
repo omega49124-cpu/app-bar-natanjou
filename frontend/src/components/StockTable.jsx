@@ -677,15 +677,17 @@ export const StockTable = ({ onStockChange, readOnly = false }) => {
                         </Button>
                       </div>
                     ) : (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => startEditing(item)}
-                        className="border-2"
-                        data-testid={`edit-btn-${item.product_name.toLowerCase()}`}
-                      >
-                        Modifier
-                      </Button>
+                      !readOnly && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => startEditing(item)}
+                          className="border-2"
+                          data-testid={`edit-btn-${item.product_name.toLowerCase()}`}
+                        >
+                          Modifier
+                        </Button>
+                      )
                     )}
                   </TableCell>
                 </TableRow>
