@@ -30,12 +30,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Receipt, Printer, X, ShoppingBag, FileText } from "lucide-react";
+import { Plus, Trash2, Receipt, Printer, X, ShoppingBag, FileText, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export const RefundSection = ({ onRefundComplete }) => {
+export const RefundSection = ({ onRefundComplete, readOnly = false }) => {
   const [products, setProducts] = useState([]);
   const [refunds, setRefunds] = useState([]);
   const [memberName, setMemberName] = useState("");
