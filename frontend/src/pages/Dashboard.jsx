@@ -150,7 +150,7 @@ export default function Dashboard({ onLogout }) {
             <CardHeader className="pb-2">
               <CardTitle className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" />
-                Net
+                Net du jour
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -158,6 +158,23 @@ export default function Dashboard({ onLogout }) {
                 {stats?.net_revenue?.toFixed(2) || "0.00"} €
               </p>
               <p className="text-xs text-muted-foreground mt-1">recette nette</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-300 shadow-sm" data-testid="stat-total">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs uppercase tracking-widest text-yellow-700 flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                CA Permanent
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-sans text-2xl font-bold tabular-nums text-yellow-700">
+                {totalStats?.total_revenue?.toFixed(2) || "0.00"} €
+              </p>
+              <p className="text-xs text-yellow-600 mt-1">
+                {totalStats?.num_transactions || 0} ventes totales
+              </p>
             </CardContent>
           </Card>
         </div>
