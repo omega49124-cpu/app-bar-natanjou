@@ -321,15 +321,16 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger, readOnly = false 
                       className="w-full bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] transition-all rounded-lg font-bold uppercase tracking-wide h-14 text-lg"
                       data-testid="validate-sale-btn"
                     >
-                    {processing ? (
-                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <Check className="w-5 h-5 mr-2" />
-                        Valider
-                      </>
-                    )}
-                  </Button>
+                      {processing ? (
+                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5 mr-2" />
+                          Valider
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
