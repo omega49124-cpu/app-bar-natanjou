@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, LogIn } from "lucide-react";
+import { Lock, LogIn, Eye } from "lucide-react";
 import NatanjouLogo from "@/components/NatanjouLogo";
 
 export const LoginScreen = ({ onLogin }) => {
@@ -19,11 +19,13 @@ export const LoginScreen = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      await axios.post(`${API}/auth/verify`, { password });
-      // Save auth state
+      const response = await axios.post(`${API}/auth/verify`, { password });
+      const role = response.data.role || "admin";
+      // Save auth state with role
       localStorage.setItem("natanjou_auth", "true");
       localStorage.setItem("natanjou_auth_time", Date.now().toString());
-      onLogin();
+      localStorage.setItem("natanjou_role", role);
+      onLogin(role);
     } catch (err) {
       setError("Mot de passe incorrect");
     } finally {
@@ -91,8 +93,12 @@ export const LoginScreen = ({ onLogin }) => {
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-border text-center">
-            <p className="text-xs text-muted-foreground">
+          <div className="mt-6 pt-6 border-t border-border">
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-3">
+              <Eye className="w-4 h-4" />
+              <span>Mode consultation disponible</span>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
               Association Natanjou © {new Date().getFullYear()}
             </p>
           </div>
