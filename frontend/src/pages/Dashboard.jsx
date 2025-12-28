@@ -59,6 +59,12 @@ export default function Dashboard({ onLogout, userRole = "admin" }) {
               <p className="font-sans text-sm opacity-80">
                 Gestion de la Buvette
               </p>
+              {isViewer && (
+                <div className="flex items-center gap-1 mt-1 bg-yellow-500/20 px-2 py-0.5 rounded text-yellow-200">
+                  <Eye className="w-3 h-3" />
+                  <span className="text-xs font-medium">Mode consultation</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -95,6 +101,14 @@ export default function Dashboard({ onLogout, userRole = "admin" }) {
           </div>
         </div>
       </header>
+
+      {/* Viewer Mode Banner */}
+      {isViewer && (
+        <div className="bg-yellow-500 text-yellow-900 py-2 px-4 text-center text-sm font-medium no-print">
+          <Eye className="w-4 h-4 inline mr-2" />
+          Mode consultation uniquement - Les modifications sont désactivées
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="max-w-7xl mx-auto px-8 py-6 no-print">
