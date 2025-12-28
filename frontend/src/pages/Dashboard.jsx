@@ -4,7 +4,7 @@ import { API } from "@/App";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut, Shield } from "lucide-react";
+import { ShoppingCart, Package, ReceiptText, TrendingUp, Settings, History, LogOut, Shield, Trophy } from "lucide-react";
 import CashRegister from "@/components/CashRegister";
 import StockTable from "@/components/StockTable";
 import RefundSection from "@/components/RefundSection";
@@ -15,13 +15,18 @@ import NatanjouLogo from "@/components/NatanjouLogo";
 
 export default function Dashboard({ onLogout }) {
   const [stats, setStats] = useState(null);
+  const [totalStats, setTotalStats] = useState(null);
   const [activeTab, setActiveTab] = useState("caisse");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API}/stats/today`);
-      setStats(response.data);
+      const [todayRes, totalRes] = await Promise.all([
+        axios.get(`${API}/stats/today`),
+        axios.get(`${API}/stats/total`)
+      ]);
+      setStats(todayRes.data);
+      setTotalStats(totalRes.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
     }
