@@ -308,12 +308,19 @@ export const CashRegister = ({ onSaleComplete, refreshTrigger, readOnly = false 
                       {cartTotal.toFixed(2)} €
                     </span>
                   </div>
-                  <Button
-                    onClick={processSale}
-                    disabled={processing}
-                    className="w-full bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] transition-all rounded-lg font-bold uppercase tracking-wide h-14 text-lg"
-                    data-testid="validate-sale-btn"
-                  >
+                  {readOnly ? (
+                    <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-4 text-center">
+                      <Eye className="w-6 h-6 mx-auto mb-2 text-yellow-600" />
+                      <p className="text-yellow-800 font-medium">Mode consultation</p>
+                      <p className="text-yellow-600 text-sm">Les ventes sont désactivées</p>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={processSale}
+                      disabled={processing}
+                      className="w-full bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] transition-all rounded-lg font-bold uppercase tracking-wide h-14 text-lg"
+                      data-testid="validate-sale-btn"
+                    >
                     {processing ? (
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
