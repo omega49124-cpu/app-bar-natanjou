@@ -633,6 +633,38 @@ async def get_today_stats():
         "num_refunds": len(refunds)
     }
 
+@api_router.get("/stats/total")
+async def get_total_stats():
+    """Get cumulative/permanent stats since the first sale"""
+    # Get ALL sales (permanent cumulative)
+    all_sales = await db.sales.find({}, {"_id": 0}).to_list(100000)
+    
+    total_revenue = sum(s["total"] for s in all_sales)
+    total_items = sum(s["quantity"] for s in all_sales)
+    
+    # Get ALL refunds
+    all_refunds = await db.refunds.find({}, {"_id": 0}).to_list(10000)
+    total_refunds = sum(r["total_amount"] for r in all_refunds)
+    
+    # Get first and last sale dates
+    first_sale_date = None
+    last_sale_date = None
+    if all_sales:
+        sorted_sales = sorted(all_sales, key=lambda x: x.get("timestamp", ""))
+        first_sale_date = sorted_sales[0].get("timestamp", "")[:10] if sorted_sales else None
+        last_sale_date = sorted_sales[-1].get("timestamp", "")[:10] if sorted_sales else None
+    
+    return {
+        "total_revenue": total_revenue,
+        "total_items": total_items,
+        "total_refunds": total_refunds,
+        "net_revenue": total_revenue - total_refunds,
+        "num_transactions": len(all_sales),
+        "num_refunds": len(all_refunds),
+        "first_sale_date": first_sale_date,
+        "last_sale_date": last_sale_date
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "Natanjou Buvette API"}
