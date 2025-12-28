@@ -573,6 +573,8 @@ export const RefundSection = ({ onRefundComplete, readOnly = false }) => {
             <Receipt className="w-5 h-5 mr-2" />
             Valider le remboursement
           </Button>
+            </>
+          )}
         </CardContent>
       </Card>
 
