@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-export const AdminSection = () => {
+export const AdminSection = ({ readOnly = false }) => {
   const [loading, setLoading] = useState(false);
   const [showFactoryResetDialog, setShowFactoryResetDialog] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
