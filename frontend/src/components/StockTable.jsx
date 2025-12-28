@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export const StockTable = ({ onStockChange }) => {
+export const StockTable = ({ onStockChange, readOnly = false }) => {
   const [stock, setStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
