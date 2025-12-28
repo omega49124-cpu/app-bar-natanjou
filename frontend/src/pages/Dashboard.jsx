@@ -138,11 +138,16 @@ export default function Dashboard({ onLogout }) {
             </CardHeader>
             <CardContent>
               <p className="font-sans text-2xl font-bold tabular-nums text-destructive">
-                {stats?.total_refunds?.toFixed(2) || "0.00"} €
+                {totalStats?.total_refunds?.toFixed(2) || "0.00"} €
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats?.num_refunds || 0} remboursements
+                {totalStats?.num_refunds || 0} total (permanent)
               </p>
+              {stats?.total_refunds > 0 && (
+                <p className="text-xs text-destructive/70 mt-1">
+                  dont {stats.total_refunds.toFixed(2)} € aujourd'hui
+                </p>
+              )}
             </CardContent>
           </Card>
 
